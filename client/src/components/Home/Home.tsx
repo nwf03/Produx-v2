@@ -12,10 +12,10 @@ export default function Home() {
       <div className="hidden md:block">
         <FollowedProducts />
       </div>
-      <div className="col-span-4 md:col-span-2">
+      <div className="col-span-4 md:col-span-3 lg:col-span-2">
         <LatestPosts />
       </div>
-      <div>
+      <div className={"hidden lg:block"}>
         <TopProducts />
       </div>
     </div>

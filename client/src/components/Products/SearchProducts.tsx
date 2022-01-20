@@ -10,7 +10,7 @@ export default function SearchProducts({ name }: { name: string }) {
   const { products } = data ? (data as ProductResponse) : { products: [] };
 
   return (
-    <div className=" w-[31vw] absolute top-20 ml-[-11px] min-w-[200px] text-left bg-gray-300 rounded-box">
+    <div className=" w-10/12 md:w-[31vw] absolute top-20 ml-[-11px] min-w-[200px] text-left bg-gray-300 rounded-box">
       <div className="">
         {isLoading && "Loading..."}
         {data ? (

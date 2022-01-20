@@ -23,7 +23,10 @@ export default function NavBar() {
                 placeholder="Search Products..."
                 className="input input-bordered"
               />
-              {name.length > 1 && <SearchProducts name={name} />}
+              {name.length > 1 &&(
+                  <div className={"flex justify-center"}>
+                    <SearchProducts name={name} />
+                  </div>)}
             </div>
           </div>
           <div className="flex justify-center  cursor-pointer ">

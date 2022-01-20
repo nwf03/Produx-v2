@@ -15,7 +15,7 @@ const Home: NextPage = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [getUserInfo] = useLazyGetUserInfoQuery();
-
+  const authStatus = useAppSelector(state => state.auth.isLoggedIn)
   const getUserInfoHandler = async () => {
     const { data, error } = await getUserInfo();
     if (error) {
@@ -26,15 +26,12 @@ const Home: NextPage = () => {
       dispatch(setUser(data));
       console.log("DATA: ", data);
     }
+
   };
   useEffect(() => {
-    if (user == null) {
-      getUserInfoHandler();
-      console.log("fetched user info");
-    } else {
-      console.log("NOT FETCHED");
-    }
-  }, []);
+    // const data = getUserInfoHandler();
+    // dispatch(changeAuthStatus(false))
+  }, [authStatus]);
   return (
     <div>
       {auth.isLoggedIn == true ? (
@@ -48,5 +45,4 @@ const Home: NextPage = () => {
     </div>
   );
 };
-
 export default Home;

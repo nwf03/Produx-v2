@@ -13,8 +13,8 @@ export default function LatestPosts() {
   };
   return (
     <div className="">
-      <div className=" hidden md:block w-max min-w-fit m-5 bg-[#F5F5F5] text-center">
-        <div className="">
+      <div className="block min-w-max m-5 bg-[#F5F5F5] text-center">
+        <div>
           {Object.keys(channels).map((c, idx) => (
             <span
               key={idx}
@@ -29,10 +29,10 @@ export default function LatestPosts() {
         </div>
       </div>
       {isLoading && <div>Loading...</div>}
-      {error && <div>Error!</div>}
+      {error && <div>{error.data}</div>}
       {data &&
         data.map((p, idx) => {
-          return <Post key={idx} data={p} channel={channel} color={channels[channel].color}  />;
+          return <Post key={idx} data={p} channel={channel} color={channels[channel].color}  showDivider={false} />;
         })}
     </div>
   );

@@ -5,7 +5,7 @@ interface ChannelInterface {
   channel: string;
 }
 const initialState = {
-  channel: "bugs",
+  channel: "Bugs",
 };
 
 const channelSlice = createSlice({

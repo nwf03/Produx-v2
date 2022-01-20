@@ -39,20 +39,32 @@ export default function Sidebar({
     //  todo fix logo, name, and stat centering when screen size is md
     <div className="bg-gray-100 h-screen justify-center flex overflow-auto">
       <div className="mt-4">
-        <div className="items-center justify-center w-max  text-center">
+        <div className="w-max mx-auto">
           {product.images && (
             <img
               src={product.images[0]}
               alt={product.name}
-              className="w-[10vw]"
+              className="w-[9vw] min-w-[120px]"
             />
           )}
-          <h1 className="font-bold text-3xl capitalize">{product.name}</h1>
         </div>
-        <div className="grid grid-row-3 lg:grid-cols-3 gap-4 mt-6 m-2">
-          <p>🌎 100k</p>
-          <p>🌎 100k</p>
-          <p>🌎 100k</p>
+          <div className={"block text-center"}>
+          <h1 className="font-bold text-3xl capitalize">{product.name}</h1>
+          <h1>{product.description}</h1>
+          </div>
+        <div className="grid grid-cols-3 gap-2 lg:gap-4 mt-6 m-2 text-center place-items-center">
+          <div className={"block lg:inline-flex gap-2"}>
+            <p>🌎</p>
+            <p>100k</p>
+          </div>
+          <div className={"block lg:inline-flex gap-2"}>
+            <p>🌎</p>
+            <p>100k</p>
+          </div>
+          <div className={"block lg:inline-flex gap-2"}>
+            <p>🌎</p>
+            <p>100k</p>
+          </div>
         </div>
         <div>
           {Object.keys(channels).map((e) => {
@@ -71,7 +83,7 @@ export default function Sidebar({
             );
           })}
         </div>
-        <h1>Filters</h1>
+        <h1 className={"md:ml-2"}>Filters</h1>
         <div className="divider"></div>
         <div>
           {filters.map(el=>{
