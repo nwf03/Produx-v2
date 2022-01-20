@@ -11,8 +11,8 @@ export default function PostView({
   showDivider: boolean
 }) {
   return (
-    <div className={!showDivider ?"mb-6" :""}>
-      <div className="bg-white p-5 rounded-3xl  mb-4 w-auto items-center mx-12 mt-4 md:mt-0">
+    <div className={!showDivider ?"mb-6 w-auto" :"min-w-[1-"}>
+      <div className="bg-white p-5 rounded-3xl  min-w-[20vw] mb-4 items-center mx-12 mt-4 md:mt-0">
       <div className="grid-cols-3 flex align-bottom ">
         <div className="flex items-center">
           {data.user.pfp && (

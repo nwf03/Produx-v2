@@ -33,7 +33,7 @@ export default function Posts({
       {isLoading && "Loading..."}
       <div className="flex items-center justify-center">
         {data && posts.length > 0 ? (
-          <div className="">
+          <div className="w-screen">
             {posts.map((post, idx) => {
               return (
                 <Post
