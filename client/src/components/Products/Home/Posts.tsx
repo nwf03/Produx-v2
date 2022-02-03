@@ -1,8 +1,10 @@
 import { useGetProductsQuery } from "../../../state/reducers/api";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { ProductPostsResponse } from "../../../state/interfaces";
 import Post from "../Post";
+import { Button } from "@nextui-org/react";
 import { Channel } from "../../../state/interfaces";
+import AddPost from "./AddPost";
 export default function Posts({
   name,
   channel,
@@ -10,6 +12,7 @@ export default function Posts({
   name: string;
   channel: string;
 }) {
+  const [showAdd, setShowAdd] = useState(false);
   const { data, isLoading, error } = useGetProductsQuery({
     name: name,
     field: channel,
@@ -22,13 +25,23 @@ export default function Posts({
     Changelogs: { icon: "🔑", color: "#FF4D00" },
   };
   const { posts } = data ? (data as ProductPostsResponse) : { posts: [] };
-  useEffect(()=>{
-    console.log("channels color: ", channel)
-  },[])
+  useEffect(() => {
+    console.log("channels color: ", channel);
+  }, []);
   return (
     <div className="items-center justify-center overflow-x-hidden">
-      <h1 className="text-3xl font-bold ml-12 mt-4">Latest {channel}</h1>
-
+      <div className={"grid grid-rows-2 md:flex md:items-center md:ml-12 mt-4"}>
+        <h1 className="text-3xl font-bold ">Latest {channel}</h1>
+        <Button
+          className={"bg-black md:ml-auto mr-4"}
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          Create Post
+        </Button>
+      </div>
+      {showAdd && (
+        <AddPost show={showAdd} setShow={setShowAdd} productName={name} />
+      )}
       <br />
       {isLoading && "Loading..."}
       <div className="flex items-center justify-center">
@@ -37,17 +50,20 @@ export default function Posts({
             {posts.map((post, idx) => {
               return (
                 <Post
+                  showProductIcon={false}
                   key={idx}
                   data={post}
                   channel={channel}
                   color={channels[channel].color}
-                  showDivider={true }
+                  showDivider={true}
                 />
               );
             })}
           </div>
         ) : (
-          <h1 className={"text-2xl w-screen text-left ml-12"}>Channel is empty :(</h1>
+          <h1 className={"text-2xl w-screen text-left ml-12"}>
+            Channel is empty :(
+          </h1>
         )}
       </div>
     </div>

@@ -3,7 +3,7 @@ export interface User {
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt?: null;
-  username: string;
+  name: string;
   password: string;
   email: string;
   pfp: string;
@@ -23,8 +23,19 @@ export interface Product {
   user_likes?: null;
   likes: number;
   verified: boolean;
+  private: boolean;
+  accessToken: string;
 }
-
+export interface Comments {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+  DeletedAt: string | null;
+//  add bug id or suggestions id
+  user: User;
+  userID: number;
+  comment: string
+}
 export interface Post {
   ID: number;
   CreatedAt: string;
@@ -36,7 +47,10 @@ export interface Post {
   userID: number;
   title: string;
   description: string;
+  commentsCount?: number;
+  comments?: []Comments
 }
+
 
 export interface UserInfo {
   ID: number;
@@ -59,7 +73,33 @@ export interface Channel {
 
 export type PostTypes = "bugs" | "suggestions" | "announcements" | "changelogs";
 
+type ChannelName = "bugs" | "suggestions" | "announcements" | "changelogs";
+type ChannelBody = {
+  icon: string;
+  color: string;
+};
+
+type ChannelInfo = Record<ChannelName, ChannelBody>;
+
+const b1: ChannelInfo = {
+  bugs: { icon: "", color: "" },
+};
+
 export interface ProductPostsResponse {
   posts: Post[];
   page: number;
 }
+
+type images = { images: File[] | null };
+export type NewProduct = Pick<
+  Product,
+  "name" | "description" | "private" | "access_token"
+> &
+  images;
+type ChannelNames = "Announcements" | "Changelogs" | "Bugs" | "Suggestions";
+export type Channels = Record<ChannelNames, boolean>;
+
+export type ProductUser = Pick<User, "name" | "pfp"> & {
+  role: string;
+  id: number;
+};

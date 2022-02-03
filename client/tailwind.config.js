@@ -1,3 +1,4 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",
@@ -6,10 +7,14 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    screens: {
+      xsm: { max: "460px" },
+      ...defaultTheme.screens,
+    },
   },
   plugins: [require("daisyui"), "macros"],
   format: "auto",
   daisyui: {
-    themes: false
-  }
+    themes: false,
+  },
 };

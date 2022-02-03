@@ -29,10 +29,19 @@ export default function LatestPosts() {
         </div>
       </div>
       {isLoading && <div>Loading...</div>}
-      {error && <div>{error.data}</div>}
+      {!data && <div className="text-center mt-12">no products followed</div>}
       {data &&
         data.map((p, idx) => {
-          return <Post key={idx} data={p} channel={channel} color={channels[channel].color}  showDivider={false} />;
+          return (
+            <Post
+              key={idx}
+              showProductIcon={true}
+              data={p}
+              channel={channel}
+              color={channels[channel].color}
+              showDivider={false}
+            />
+          );
         })}
     </div>
   );

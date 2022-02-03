@@ -10,10 +10,13 @@ export default function FollowedProducts() {
     <div className="fixed ml-10 mt-4">
       <h1 className="font-bold text-2xl mb-6">Followed Products</h1>
       <div className="mt-4">
-        {followed_products ?
+        {followed_products ? (
           followed_products.map((product, idx) => {
-            return <Product product={product} key={idx} />;
-          }) : <h1>no followed products</h1>}
+            return <Product product={product} showDesc={false} key={idx} />;
+          })
+        ) : (
+          <h1>no followed products</h1>
+        )}
       </div>
     </div>
   );

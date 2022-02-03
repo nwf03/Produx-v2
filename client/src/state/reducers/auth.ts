@@ -4,6 +4,7 @@ interface tokenState {
   isLoggedIn: boolean;
   user: UserInfo | null;
 }
+
 const initialState: tokenState = {
   isLoggedIn: false,
   user: null,
@@ -15,9 +16,11 @@ const auth = createSlice({
   reducers: {
     changeAuthStatus(state, action: PayloadAction<boolean>) {
       state.isLoggedIn = action.payload;
+      // localStorage.setItem("auth", JSON.stringify({ ...state }));
     },
     setUser(state, action: PayloadAction<UserInfo>) {
       state.user = action.payload;
+      localStorage.setItem("auth", JSON.stringify({ ...state }));
     },
   },
 });

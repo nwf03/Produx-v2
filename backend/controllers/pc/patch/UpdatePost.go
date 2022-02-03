@@ -17,78 +17,52 @@ func UpdatePost(c *fiber.Ctx) error {
 	newDescription := c.FormValue("description")
 	newVersion := c.FormValue("version")
 	if newTitle == "" && newDescription == "" && newVersion == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "title or description is required"})
+		return c.Status(400).JSON(fiber.Map{"message": "title or description is required"})
 	}
 
 	if !mw.ValidFields(field) {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid field"})
+		return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
 	}
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var product db.Product
-	DB.First(&product, "name = ?", name)
+	db.DB.First(&product, "name = ?", name)
 	if product.ID == 0 {
-		return c.Status(404).JSON(fiber.Map{"error": "Product not found"})
+		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
 	}
+
 	switch field {
-	case "Suggestions":
-		var suggestion db.Suggestion
-		DB.First(&suggestion, "id = ?", postId)
-		if suggestion.ID == 0 {
-			return c.Status(404).JSON(fiber.Map{"error": "Suggestion not found"})
-		}
-		if suggestion.UserID != uint(id) {
-			return c.Status(403).JSON(fiber.Map{"error": "Not authorized"})
-		}
-		if newTitle != "" {
-			suggestion.Title = newTitle
-		}
-		if newDescription != "" {
-			suggestion.Description = newDescription
-		}
-		DB.Save(&suggestion)
-		return c.Status(200).JSON(suggestion)
-	case "Bugs":
-		var bug db.Bug
-		DB.First(&bug, "id = ?", postId)
-		if bug.ID == 0 {
-			return c.Status(404).JSON(fiber.Map{"error": "Bug not found"})
-		}
-		if bug.UserID != uint(id) {
-			return c.Status(403).JSON(fiber.Map{"error": "Not authorized"})
-		}
-		if newTitle != "" {
-			bug.Title = newTitle
-		}
-		if newDescription != "" {
-			bug.Description = newDescription
-		}
-		DB.Save(&bug)
-		return c.Status(200).JSON(bug)
+	case "Announcements":
 	case "Changelogs":
-		var changelog db.Changelog
+		var post db.AdminPost
+		if field == "Announcement" {
+			post = &db.Announcement{}
+		} else {
+			post = &db.Changelog{}
+		}
+		db.DB.First(post, "id = ? and user_id = ?", postId, id)
+		if post.GetID() == 0 {
+			return c.Status(404).JSON(fiber.Map{"message": "Post not found"})
+		}
+		post.Update(newTitle, newDescription, newVersion)
+		return c.JSON(post)
+	case "Suggestions":
+	case "Bugs":
+		var post db.Post
 
-		DB.First(&changelog, "id = ?", postId)
-		if changelog.ID == 0 {
-			return c.Status(404).JSON(fiber.Map{"error": "Changelog not found"})
+		if field == "Suggestion" {
+			post = &db.Suggestion{}
+		} else {
+			post = &db.Bug{}
 		}
-		if changelog.UserID != uint(id) {
-			return c.Status(403).JSON(fiber.Map{"error": "Not authorized"})
-		}
-		if newTitle != "" {
-			changelog.Title = newTitle
-		}
-		if newDescription != "" {
-			changelog.Description = newDescription
-		}
-		if newVersion != "" {
-			changelog.Version = newVersion
-		}
-		DB.Save(&changelog)
-		return c.Status(200).JSON(changelog)
 
+		db.DB.First(post, "id = ? and user_id = ?", postId, int64(id))
+		if post.GetID() == 0 {
+			return c.Status(404).JSON(fiber.Map{"message": "Post not found"})
+		}
+		post.Update(newTitle, newDescription)
+		return c.JSON(post)
 	}
-	return c.Status(404).JSON(fiber.Map{"error": "field not found"})
-
+	return c.Status(404).JSON(fiber.Map{"message": "field not found"})
 }

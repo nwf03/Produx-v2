@@ -1,6 +1,7 @@
 package post
 
 import (
+	"strings"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,25 +12,28 @@ import (
 func UnfollowProduct(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
+	userId := claims["id"].(float64)
 	var User db.User
-	DB.Preload("FollowedProducts").First(&User, "name = ?", name)
+	db.DB.Preload("FollowedProducts").First(&User, "id = ?", userId)
 	if User.ID == 0 {
 		return c.Status(401).JSON(fiber.Map{
 			"message": "User not found",
 		})
 	}
-	productName := c.FormValue("product_name")
+	productName := strings.TrimSpace(strings.ReplaceAll(c.Params("product_name"), "%20", " "))
 
 	var Product db.Product
-	DB.First(&Product, "name = ?", productName)
+	db.DB.First(&Product, "name = ?", productName)
 	if Product.ID == 0 {
 		return c.Status(401).JSON(fiber.Map{
 			"message": "Product not found",
 		})
 	}
-	DB.Model(&User).Association("FollowedProducts").Delete(&Product)
-	DB.Save(&User)
+	err := db.DB.Model(&User).Association("FollowedProducts").Delete(&Product)
+	if err != nil {
+		return err
+	}
+	db.DB.Save(&User)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Product unfollowed",

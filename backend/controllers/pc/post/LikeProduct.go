@@ -13,9 +13,9 @@ func LikeProduct(c *fiber.Ctx) error{
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
 	var User db.User
-	DB.Preload("LikedProducts").Where("name = ?", name).First(&User)
+	db.DB.Preload("LikedProducts").Where("name = ?", name).First(&User)
 	var Product db.Product
-	DB.Preload("UserLikes").Where("id = ?", c.FormValue("id")).First(&Product)
+	db.DB.Preload("UserLikes").Where("id = ?", c.FormValue("id")).First(&Product)
 	fmt.Println("Product name: ", Product.Name)
 	if Product.ID == 0{
 		return c.Status(404).JSON(fiber.Map{
@@ -30,13 +30,16 @@ func LikeProduct(c *fiber.Ctx) error{
 			})
 		}
 	}
-	DB.Model(&User).Association("LikedProducts").Append(&Product)
+	err := db.DB.Model(&User).Association("LikedProducts").Append(&Product)
+	if err != nil {
+		return err
+	}
 	fmt.Println("Product Likes: ", Product.UserLikes)
 
 	Product.LikesCount = Product.LikesCount + 1
 	fmt.Println("PRODUCT LIKES: ", Product.LikesCount)
 
-	DB.Save(&Product)
+	db.DB.Save(&Product)
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Product liked",
 	})

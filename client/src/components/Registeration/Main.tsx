@@ -3,6 +3,7 @@ import Register from "./Register";
 import { useState, useEffect } from "react";
 import { changeAuthStatus } from "../../state/reducers/auth";
 import { useAppDispatch } from "../../state/hooks";
+import { Button, Input } from "@nextui-org/react";
 export default function Main() {
   const [login, setLogin] = useState(true);
   const dispatch = useAppDispatch();
@@ -13,10 +14,10 @@ export default function Main() {
   }, [dispatch]);
 
   return (
-    <div className="w-[100vw] h-[20vh] justify-center flex  items-center">
+    <div className="justify-center mx-auto w-[300px] items-center">
       {login ? <Login /> : <Register />}
       <div className="block">
-        <button onClick={() => setLogin(!login)} className="btn btn-primary">
+        <button className="mt-2" onClick={() => setLogin(!login)}>
           {login ? "Register" : "Login"}
         </button>
       </div>

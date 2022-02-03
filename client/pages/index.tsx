@@ -15,7 +15,7 @@ const Home: NextPage = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [getUserInfo] = useLazyGetUserInfoQuery();
-  const authStatus = useAppSelector(state => state.auth.isLoggedIn)
+  const authStatus = useAppSelector((state) => state.auth.isLoggedIn);
   const getUserInfoHandler = async () => {
     const { data, error } = await getUserInfo();
     if (error) {
@@ -26,14 +26,15 @@ const Home: NextPage = () => {
       dispatch(setUser(data));
       console.log("DATA: ", data);
     }
-
   };
   useEffect(() => {
-    // const data = getUserInfoHandler();
-    // dispatch(changeAuthStatus(false))
+    getUserInfoHandler();
   }, [authStatus]);
   return (
     <div>
+      <Head>
+        <link rel="icon" href={'/produx2.png'}/>
+      </Head>
       {auth.isLoggedIn == true ? (
         <div>
           <NavBar />

@@ -4,51 +4,64 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var url = "http://localhost:8000/"
 
-func CreateUser(c *fiber.Ctx) error {
-	user := new(db.User)
+type CreateUserRequest struct {
+	Name     string `json:"name"`
+	Password string `json:"-"`
+	Email    string `json:"email"`
+	Pfp      string `json:"pfp"`
+}
 
-	if err := c.BodyParser(user); err != nil {
+func CreateUser(c *fiber.Ctx) error {
+	req := new(CreateUserRequest)
+
+	if err := c.BodyParser(req); err != nil {
 		return err
 	}
 	var existingUser db.User
-	DB.First(&existingUser, "email = ?", user.Email)
+	db.DB.First(&existingUser, "email = ?", req.Email)
 	if existingUser.Email != "" {
 		return c.Status(400).JSON(fiber.Map{"message": "User already exists"})
 	}
 	file, err := c.FormFile("pfp")
 	if err == nil {
-		err := os.Mkdir("./public/"+user.Name, 0755)
+		err := os.Mkdir("./public/"+req.Name, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = c.SaveFile(file, fmt.Sprintf("./public/%s/%s", user.Name, file.Filename))
+		err = c.SaveFile(file, fmt.Sprintf("./public/%s/%s", req.Name, file.Filename))
 		if err != nil {
 			return err
 		}
-		user.Pfp = url + "public/" + user.Name + "/" + file.Filename
+		req.Pfp = url + "public/" + req.Name + "/" + file.Filename
 	}
 
-	if user.Name == "" || user.Password == "" || user.Email == "" {
+	if req.Name == "" || req.Password == "" || req.Email == "" {
 		return c.Status(400).JSON(fiber.Map{"message": "Please fill all the fields"})
 	}
-	DB.Create(user)
 
-	claims := jwt.MapClaims{
-		"name": user.Name,
-		"id":   user.ID,
-		"exp":  time.Now().Add(time.Hour * 72).Unix(),
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("secret"))
+
+	user := &db.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		Pfp:      req.Pfp,
+		Password: string(hash),
+	}
+
+	db.DB.Create(user)
+
+	tokenString, err := createJWTToken(user.ID, 72)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

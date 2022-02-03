@@ -2,14 +2,11 @@ package patch
 
 import (
 	"time"
-	"tutorial/controllers"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
-
-var DB = controllers.DB
 
 func UpdateUser(c *fiber.Ctx) error {
 
@@ -18,7 +15,7 @@ func UpdateUser(c *fiber.Ctx) error {
 	name := claims["name"].(string)
 
 	var userInfo db.User
-	DB.First(&userInfo, "name = ?", name)
+	db.DB.First(&userInfo, "name = ?", name)
 	if userInfo.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "User not found"})
 	}
@@ -49,7 +46,7 @@ func UpdateUser(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	DB.Save(&userInfo)
+	db.DB.Save(&userInfo)
 
 	return c.Status(200).JSON(fiber.Map{"token": tokenString})
 }
