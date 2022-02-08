@@ -1,6 +1,9 @@
 import { useRouter } from "next/router";
 import HomeNavBar from "../../../src/components/Home/NavBar";
-import { useLazyGetProductsQuery, useLazyCheckIfProductFollowedQuery } from "../../../src/state/reducers/api";
+import {
+  useLazyGetProductsQuery,
+  useLazyCheckIfProductFollowedQuery,
+} from "../../../src/state/reducers/api";
 import { Product, ProductUser } from "../../../src/state/interfaces";
 import Sidebar from "../../../src/components/Products/Home/Sidebar";
 import Posts from "../../../src/components/Products/Home/Posts";
@@ -11,6 +14,7 @@ import ChannelFilters from "../../../src/components/Products/Home/SMScreens/Chan
 import NavBar from "../../../src/components/Home/NavBar";
 import ProductUsers from "../../../src/components/Products/Home/ProductUsers";
 import Head from "next/head";
+import HomeLayout from "../../../src/components/Products/Home/HomeLayout";
 import AccessPrivateProduct from "../../../src/components/Products/AccessPrivateProduct";
 interface ProductResponse {
   product: Product;
@@ -21,7 +25,7 @@ export default function ProductHome() {
   const channel = useAppSelector((state) => state.channel.channel);
   const { name } = router.query;
   console.log(name);
-  const [checkIfFollowed] = useLazyCheckIfProductFollowedQuery()
+  const [checkIfFollowed] = useLazyCheckIfProductFollowedQuery();
   const [getProduct, { data, isLoading, error }] = useLazyGetProductsQuery();
 
   useEffect(() => {
@@ -32,67 +36,29 @@ export default function ProductHome() {
       });
     }
   }, [getProduct, name]);
-  const [showPrivate, setShowPrivate]= useState(false)
+  const [showPrivate, setShowPrivate] = useState(false);
   useEffect(() => {
-    if (data && data.product.private){
-      console.log("product id: ", JSON.stringify(data))
-     checkIfFollowed(data.product.ID).then(res => {
-       console.log(res)
-       if (res.data.followed){
-         setShowPrivate(false)
-       }else{
-         setShowPrivate(true)
-       }
-    })
-    };
-  }, [data])
+    if (data && data.product.private) {
+      console.log("product id: ", JSON.stringify(data));
+      checkIfFollowed(data.product.ID).then((res) => {
+        console.log(res);
+        if (res.data.followed) {
+          setShowPrivate(false);
+        } else {
+          setShowPrivate(true);
+        }
+      });
+    }
+  }, [data]);
   return (
     <div>
-      <Head>
-        <title>{name} - produx</title>
-        <link
-          rel="icon"
-          href={
-            data && data.product.images
-              ? data.product.images[0]
-              : "/produx2.png"
-          }
-        />
-      </Head>
-        {data && (
-      <div className="grid  md:grid-cols-4 lg:grid-cols-5 items-center h-screen">
-            <div className="hidden md:block">
-              <Sidebar product={data.product} channel={channel} />
-            </div>
-            <div className={"md:hidden"}>
-              <SmallNavBar product={data.product} />
-            </div>
+      {data && (
         <div className="bg-white col-span-4 md:col-span-3 lg:col-span-3 h-screen overflow-y-scroll overflow-x-hidden">
           {<Posts name={name as string} channel={channel} />}
         </div>
-        <div className="hidden lg:block h-screen">
-          <ProductUsers
-            users={data ? data.users : []}
-            productId={data ? data.product.ID : 0}
-            productUserID={data ? data.product.userID : 0}
-          />
-        </div>
-        <div className="md:hidden fixed bottom-0 bg-blue-600 w-screen">
-          <ChannelFilters channel={channel} />
-          </div>
-      </div>
-        )}
-      {data &&
-      <AccessPrivateProduct show={showPrivate} setShow={setShowPrivate} productName={data.product.name} productIcon={data.product.images ? data.product.images[0] : null}/>}
-      {error && (
-          <div className="flex w-screen h-screen items-center justify-center">
-            <h1 className="font-bold text-4xl">
-              Product <span className="text-red-400">&apos;{name}&apos;</span>{" "}
-              Not Found
-            </h1>
-          </div>
-        )}
-        {isLoading && "Loading..."}
+      )}
     </div>
   );
 }
+
+ProductHome.Layout = HomeLayout;

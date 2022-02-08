@@ -25,9 +25,6 @@ export default function Posts({
     Changelogs: { icon: "🔑", color: "#FF4D00" },
   };
   const { posts } = data ? (data as ProductPostsResponse) : { posts: [] };
-  useEffect(() => {
-    console.log("channels color: ", channel);
-  }, []);
   return (
     <div className="items-center justify-center overflow-x-hidden">
       <div className={"grid grid-rows-2 md:flex md:items-center md:ml-12 mt-4"}>

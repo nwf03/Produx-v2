@@ -1,7 +1,9 @@
 import { Product } from "../../../state/interfaces";
 import { Channel } from "../../../state/interfaces";
+import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import { setChannel } from "../../../state/reducers/channelSlice";
+import Link from "next/link";
 import {
   useFollowProductMutation,
   useGetUserInfoQuery,
@@ -15,6 +17,7 @@ export default function Sidebar({
   product: Product;
   channel: string;
 }) {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const channels: Channel = {
     Announcements: { icon: "🎉", color: "#FF9900" },
@@ -121,19 +124,37 @@ export default function Sidebar({
         <div>
           {Object.keys(channels).map((e) => {
             return (
+                <Link key={e} href={{
+                  pathname: "/products/[name]/[channel]",
+                  query: { name: product.name, channel: e }
+                }}>
+                  <a>
               <div
-                key={e}
-                // todo make selected channel opacity light gray
                 className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
                 style={{ backgroundColor: e == channelName ? "white" : "" }}
-                onClick={() => dispatch(setChannel(e))}
               >
                 <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
                   {channels[e].icon} {width >= mdBreakpoint && e}
                 </p>
               </div>
+                  </a>
+                </Link>
             );
           })}
+          <Link href={{
+            pathname: "/products/[name]/questions",
+            query: { name: product.name }
+          }}>
+            <a>
+              <div
+                  className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
+              >
+                <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
+                  {"🤨"} {width >= mdBreakpoint && "Questions"}
+                </p>
+              </div>
+            </a>
+          </Link>
         </div>
         <div className="">
           <h1 className={"md:ml-2 text-center"}>Filters</h1>

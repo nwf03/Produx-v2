@@ -33,7 +33,7 @@ const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Posts", "User", "Product"],
+  tagTypes: ["Posts", "User", "Product", "Comments"],
   endpoints: (builder) => ({
     getProducts: builder.query<
       ProductResponse | Product | ProductPostsResponse,
@@ -122,9 +122,18 @@ const api = createApi({
     }, string>({
       query: (productId) => `products/isFollowed/${productId}`,
     }),
-    getPostDetails: builder.query<Post, {postId: number,channel:string}>({
+    getPostDetails: builder.query<Post, {postId: string,channel:string}>({
       query: ({postId, channel}) => `products/comments/${channel}/${postId}`,
+      providesTags: ["Comments"]
     }),
+  createComment: builder.mutation<Post, {field: string, postId: number, comment:string}>({
+   query: (data) => ({
+     url : "products/create/comment",
+     method: "POST",
+     body: data
+   }),
+    invalidatesTags: ["Comments"]
+  })
   }),
 });
 
@@ -142,7 +151,9 @@ export const {
   useLazyGetProductsQuery,
   useUpdateUserRoleMutation,
   useCreateUserMutation,
-    useLazyCheckIfProductFollowedQuery,
-    useLazyGetPostDetailsQuery
+  useLazyCheckIfProductFollowedQuery,
+  useLazyGetPostDetailsQuery,
+  useCreateCommentMutation,
+    useGetPostDetailsQuery
 } = api;
 export default api;

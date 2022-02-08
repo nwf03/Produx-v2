@@ -26,7 +26,7 @@ export interface Product {
   private: boolean;
   accessToken: string;
 }
-export interface Comments {
+export interface Comment {
   ID: number;
   CreatedAt: string;
   UpdatedAt: string;
@@ -48,7 +48,7 @@ export interface Post {
   title: string;
   description: string;
   commentsCount?: number;
-  comments?: []Comments
+  comments?: []Comments;
 }
 
 

@@ -4,6 +4,7 @@ import { User } from "../../state/interfaces";
 import {useAppDispatch} from '../../state/hooks'
 import {changeAuthStatus} from '../../state/reducers/auth'
 import { useCreateUserMutation } from "../../state/reducers/api";
+import {useRouter} from "next/router";
 export default function Register() {
   const [userInfo, setUserInfo] = useState<
     Pick<User, "name" | "email"> & { password: string; pfp: File | null }
@@ -32,7 +33,8 @@ export default function Register() {
       formData.append("pfp", userInfo.pfp);
       await createUser(formData).then((res:any)=>{
        localStorage.setItem("token", res.data.token)
-       dispatch(changeAuthStatus(true)) 
+       dispatch(changeAuthStatus(true))
+          window.location.reload()
       })
     }
   };

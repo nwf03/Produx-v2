@@ -19,30 +19,23 @@ const Home: NextPage = () => {
   const getUserInfoHandler = async () => {
     const { data, error } = await getUserInfo();
     if (error) {
-      console.log("ERROR121:", error);
       dispatch(changeAuthStatus(false));
-      console.log("status: ", auth.isLoggedIn);
     } else if (data) {
       dispatch(setUser(data));
-      console.log("DATA: ", data);
     }
   };
   useEffect(() => {
     getUserInfoHandler();
-  }, [authStatus]);
+  }, []);
   return (
     <div>
       <Head>
-        <link rel="icon" href={'/produx2.png'}/>
+        <link rel="icon" href={"/produx2.png"} />
       </Head>
-      {auth.isLoggedIn == true ? (
         <div>
           <NavBar />
           <HomePage />
         </div>
-      ) : (
-        <Register />
-      )}
     </div>
   );
 };

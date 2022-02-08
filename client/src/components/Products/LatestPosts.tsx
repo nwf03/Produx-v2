@@ -1,7 +1,9 @@
 import { useGetLatestPostsQuery } from "../../state/reducers/api";
 import Post from "./Post";
 import { useState } from "react";
+import LoadingSpinner from "../LoadingSpinner";
 import { Channel } from "../../state/interfaces";
+import {Loading} from "@nextui-org/react";
 export default function LatestPosts() {
   const [channel, setChannel] = useState("Bugs");
   const { data, isLoading, error } = useGetLatestPostsQuery(channel);
@@ -28,8 +30,7 @@ export default function LatestPosts() {
           ))}
         </div>
       </div>
-      {isLoading && <div>Loading...</div>}
-      {!data && <div className="text-center mt-12">no products followed</div>}
+      {!data && !isLoading && <div className="text-center mt-12">no products followed</div>}
       {data &&
         data.map((p, idx) => {
           return (
@@ -43,6 +44,7 @@ export default function LatestPosts() {
             />
           );
         })}
+      {isLoading && <LoadingSpinner/>}
     </div>
   );
 }
