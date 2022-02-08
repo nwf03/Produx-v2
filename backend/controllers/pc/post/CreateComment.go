@@ -5,12 +5,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
+	"strings"
 	"tutorial/db"
 )
 
 type CCReq struct {
 	Field   string `json:"field"`
-	PostID  string `json:"postId"`
+	PostID  int    `json:"postId"`
 	Comment string `json:"comment"`
 }
 
@@ -27,6 +28,7 @@ func CreateComment(c *fiber.Ctx) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return fiber.ErrUnauthorized
 	}
+	req.Field = strings.ToLower(req.Field)
 	switch req.Field {
 	case "bugs":
 		var BugInfo db.Bug
@@ -44,7 +46,7 @@ func CreateComment(c *fiber.Ctx) error {
 			return err
 		}
 		return c.Status(200).JSON(CommentInfo)
-	case "suggestion":
+	case "suggestions":
 		var SuggestionInfo db.Suggestion
 		err := db.DB.Where("id = ?", req.PostID).First(&SuggestionInfo).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {

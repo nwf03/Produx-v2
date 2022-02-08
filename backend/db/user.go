@@ -24,6 +24,7 @@ type User struct {
 	DislikedSuggestions   []Suggestion   `json:"disliked_suggestions" gorm:"many2many:disliked_suggestions;"`
 	DislikedBugs          []Bug          `json:"disliked_bugs" gorm:"many2many:disliked_bugs;"`
 	DislikedChangelogs    []Changelog    `json:"disliked_changelogs" gorm:"many2many:disliked_changelogs;"`
+	Messages              []Message      `json:"messages,omitempty"`
 }
 
 func (user *User) LikeAnnouncement(announcement *Announcement) {

@@ -27,6 +27,7 @@ type Product struct {
 	Private       bool           `json:"private" gorm:"default:false"`
 	AccessToken   string         `json:"accessToken" gorm:"default:''"`
 	TSV           string         `gorm:"index:tsv_index;type:tsvector"`
+	Messages      []Message      `json:"messages"`
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) error {

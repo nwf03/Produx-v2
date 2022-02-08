@@ -109,23 +109,23 @@ func GetProducts(c *fiber.Ctx) error {
 		case "Suggestions":
 			var suggestions []db.Suggestion
 			db.DB.Model(&db.Suggestion{}).Count(&count)
-			db.DB.Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&suggestions, "product_id = ?", product.ID)
+			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&suggestions, "product_id = ?", product.ID)
 			return c.Status(200).JSON(fiber.Map{"posts": suggestions, "pages": mw.GetPageCount(count)})
 		case "Bugs":
 			var bugs []db.Bug
 			db.DB.Model(&db.Bug{}).Count(&count)
 
-			db.DB.Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&bugs, "product_id = ?", product.ID)
+			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&bugs, "product_id = ?", product.ID)
 			return c.Status(200).JSON(fiber.Map{"pages": mw.GetPageCount(count), "posts": bugs})
 		case "Changelogs":
 			db.DB.Model(&db.Changelog{}).Count(&count)
 			var changelogs []db.Changelog
-			db.DB.Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&changelogs, "product_id = ?", product.ID)
+			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&changelogs, "product_id = ?", product.ID)
 			return c.Status(200).JSON(fiber.Map{"posts": changelogs, "pages": mw.GetPageCount(count)})
 		case "Announcements":
 			var announcements []db.Announcement
 			db.DB.Model(&db.Announcement{}).Count(&count)
-			db.DB.Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&announcements, "product_id = ?", product.ID)
+			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&announcements, "product_id = ?", product.ID)
 			return c.Status(200).JSON(fiber.Map{"posts": announcements, "pages": mw.GetPageCount(count)})
 		}
 		return c.Status(404).JSON(fiber.Map{"message": "Field not found"})

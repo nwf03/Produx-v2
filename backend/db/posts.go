@@ -86,6 +86,9 @@ type Post interface {
 	Update(title, description string)
 	AddComment(comment string, userID uint)
 }
+type IDGetter interface {
+	GetID() uint
+}
 
 func (sug *Suggestion) AddComment(comment string, userID uint) {
 	var User User
