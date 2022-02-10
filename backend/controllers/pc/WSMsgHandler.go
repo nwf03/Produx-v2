@@ -3,10 +3,11 @@ package pc
 import (
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v4"
 	"strconv"
 	"time"
 	"tutorial/db"
+
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/gofiber/websocket/v2"
 	"gorm.io/gorm"
@@ -25,6 +26,7 @@ type Message struct {
 }
 
 var users = make(map[string]map[*websocket.Conn]MessageUser)
+var userAccs = make(map[string]map[uint]MessageUser)
 
 func WSMsgHandler(ws *websocket.Conn, msg string) {
 	if _, ok := users[ws.Params("id")][ws]; ok {
@@ -42,7 +44,14 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	userId := claims["id"].(float64)
-
+	//todo make a dictionary of unique users and their connections
+	if _, ok := userAccs[ws.Params("id")]; ok {
+		if _, exists := userAccs[ws.Params("id")][uint(userId)]; exists {
+			users[ws.Params("id")][ws] = userAccs[ws.Params("id")][uint(userId)]
+			SendUsersList(ws)
+			return
+		}
+	}
 	err = db.DB.Select("ID, Name, Pfp").Where("id = ?", userId).First(&UserInfo).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		fmt.Println("user not found")
@@ -51,21 +60,23 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 		fmt.Println(UserInfo.Name)
 		fmt.Println(UserInfo.Pfp)
 	}
+	user := MessageUser{
+		UserId:   UserInfo.ID,
+		UserName: UserInfo.Name,
+		Pfp:      UserInfo.Pfp,
+	}
 	if _, ok := users[ws.Params("id")]; ok {
-		users[ws.Params("id")][ws] = MessageUser{
-			UserId:   UserInfo.ID,
-			UserName: UserInfo.Name,
-			Pfp:      UserInfo.Pfp,
-		}
+		users[ws.Params("id")][ws] = user
 	} else {
 		users[ws.Params("id")] = make(map[*websocket.Conn]MessageUser)
-		users[ws.Params("id")][ws] = MessageUser{
-			UserId:   UserInfo.ID,
-			UserName: UserInfo.Name,
-			Pfp:      UserInfo.Pfp,
-		}
+		users[ws.Params("id")][ws] = user
 	}
-
+	if _, ok := userAccs[ws.Params("id")]; ok {
+		userAccs[ws.Params("id")][uint(userId)] = user
+	} else {
+		userAccs[ws.Params("id")] = make(map[uint]MessageUser)
+		userAccs[ws.Params("id")][uint(userId)] = user
+	}
 	SendUsersList(ws)
 }
 
@@ -104,19 +115,25 @@ func makeMessage(ws *websocket.Conn, msgType messageType, msg string) *Message {
 }
 
 func HandleDisconnect(ws *websocket.Conn) {
-	_, ok := users[ws.Params("id")][ws]
+	user, ok := users[ws.Params("id")][ws]
 	if ok {
 		delete(users[ws.Params("id")], ws)
 		SendUsersList(ws)
-
 	}
+	_, exists := userAccs[ws.Params("id")][user.UserId]
+	if exists {
+		delete(userAccs[ws.Params("id")], user.UserId)
+	}
+	
 }
 
 func SendUsersList(ws *websocket.Conn) {
 	var allUsers []MessageUser
-	for _, user := range users[ws.Params("id")] {
+	for _, user := range userAccs[ws.Params("id")] {
 		allUsers = append(allUsers, user)
 	}
+	fmt.Println("connected users: ", len(allUsers))
+	fmt.Println("all users: ", allUsers)
 	for client := range users[ws.Params("id")] {
 		err := client.WriteJSON(struct {
 			Users []MessageUser `json:"users"`

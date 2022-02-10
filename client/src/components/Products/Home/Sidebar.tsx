@@ -124,30 +124,38 @@ export default function Sidebar({
         <div>
           {Object.keys(channels).map((e) => {
             return (
-                <Link key={e} href={{
+              <Link
+                key={e}
+                href={{
                   pathname: "/products/[name]/[channel]",
-                  query: { name: product.name, channel: e }
-                }}>
-                  <a>
-              <div
-                className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
-                style={{ backgroundColor: e == channelName ? "white" : "" }}
+                  query: { name: product.name, channel: e },
+                }}
               >
-                <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
-                  {channels[e].icon} {width >= mdBreakpoint && e}
-                </p>
-              </div>
-                  </a>
-                </Link>
+                <a>
+                  <div
+                    className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
+                    style={{ backgroundColor: e == channelName ? "white" : "" }}
+                  >
+                    <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
+                      {channels[e].icon} {width >= mdBreakpoint && e}
+                    </p>
+                  </div>
+                </a>
+              </Link>
             );
           })}
-          <Link href={{
-            pathname: "/products/[name]/questions",
-            query: { name: product.name }
-          }}>
+          <Link
+            href={{
+              pathname: "/products/[name]/questions",
+              query: { name: product.name },
+            }}
+          >
             <a>
               <div
-                  className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
+                className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw]"
+                style={{
+                  backgroundColor: "Questions" == channelName ? "white" : "",
+                }}
               >
                 <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
                   {"🤨"} {width >= mdBreakpoint && "Questions"}
@@ -156,10 +164,10 @@ export default function Sidebar({
             </a>
           </Link>
         </div>
-        <div className="">
-          <h1 className={"md:ml-2 text-center"}>Filters</h1>
-          <div className="divider"></div>
-          <div>
+        {/* <div className=""> */}
+        {/* <h1 className={"md:ml-2 text-center"}>Filters</h1> */}
+        {/* <div className="divider"></div> */}
+        {/* <div>
             {filters.map((el) => {
               return (
                 <h1
@@ -170,8 +178,8 @@ export default function Sidebar({
                 </h1>
               );
             })}
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

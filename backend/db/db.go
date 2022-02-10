@@ -36,49 +36,65 @@ func GetDB() *gorm.DB {
 }
 
 var DB *DBConn = &DBConn{
-	 GetDB(),
-} 
-type DBConn struct{
+	GetDB(),
+}
+
+type DBConn struct {
 	*gorm.DB
-} 
+}
 
 func (db *DBConn) GetAnnouncements(productId int64, lastId int64, preloadUser bool) ([]Announcement, error) {
 	var announcements []Announcement
 	var err error
+	query := createPostsQuery(lastId, productId)
 	if preloadUser {
-		err = db.Preload("User").Find(&announcements, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
-	}else{
-		err = db.Find(&announcements, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
+		err = db.Order("created_at desc").Preload("User").Find(&announcements, query).Limit(10).Error
+	} else {
+		err = db.Order("created_at desc").Find(&announcements, query).Limit(10).Error
 	}
 	return announcements, err
 }
 func (db *DBConn) GetChangelogs(productId int64, lastId int64, preloadUser bool) ([]Changelog, error) {
 	var changelogs []Changelog
 	var err error
+	query := createPostsQuery(lastId, productId)
 	if preloadUser {
-		err = db.Preload("User").Find(&changelogs, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
-	}else {
-		err = db.Find(&changelogs, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
+		err = db.Order("created_at desc").Preload("User").Find(&changelogs, query).Limit(10).Error
+	} else {
+		err = db.Order("created_at desc").Find(&changelogs, query).Limit(10).Error
 	}
 	return changelogs, err
 }
 func (db *DBConn) GetBugs(productId int64, lastId int64, preloadUser bool) ([]Bug, error) {
 	var bugs []Bug
 	var err error
+	query := createPostsQuery(lastId, productId)
+	fmt.Println("query: ", query)
 	if preloadUser {
-		err = db.Preload("User").Find(&bugs, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
-	}else{
-		err = db.Find(&bugs, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
+		err = db.Order("created_at desc").Preload("User").Find(&bugs, query).Limit(10).Error
+	} else {
+		err = db.Order("created_at desc").Find(&bugs, query).Limit(10).Error
 	}
 	return bugs, err
 }
 func (db *DBConn) GetSuggestions(productId int64, lastId int64, preloadUser bool) ([]Suggestion, error) {
 	var suggestions []Suggestion
-	var err error 
-	if preloadUser{
-		err = db.Preload("User").Find(&suggestions, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
-	}else{
-		err = db.Find(&suggestions, "product_id = ? and id > ?", productId, lastId).Limit(10).Error
+	var err error
+	query := createPostsQuery(lastId, productId)
+	if preloadUser {
+		err = db.Order("created_at desc").Preload("User").Find(&suggestions, query).Limit(10).Error
+	} else {
+		err = db.Order("created_at desc").Find(&suggestions, query).Limit(10).Error
 	}
 	return suggestions, err
+}
+
+func createPostsQuery(lastId int64, productId int64) string {
+	var query string
+	if lastId == 0 {
+		query = fmt.Sprintf("product_id = %d", productId)
+	} else {
+		query = fmt.Sprintf("product_id = %d and id < %d", productId, lastId)
+	}
+	return query
 }

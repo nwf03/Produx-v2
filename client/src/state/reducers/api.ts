@@ -133,7 +133,11 @@ const api = createApi({
      body: data
    }),
     invalidatesTags: ["Comments"]
-  })
+  }),
+    getPosts: builder.query<Post[], {lastId?: number, productId: number, channel: string}>({
+      query: ({lastId, productId, channel}) => `products/posts/${productId}/${channel}/${lastId || 0}`,
+      providesTags: ["Posts"],
+    }),
   }),
 });
 
@@ -154,6 +158,7 @@ export const {
   useLazyCheckIfProductFollowedQuery,
   useLazyGetPostDetailsQuery,
   useCreateCommentMutation,
-    useGetPostDetailsQuery
+  useGetPostDetailsQuery,
+  useGetPostsQuery
 } = api;
 export default api;
