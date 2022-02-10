@@ -118,13 +118,13 @@ func HandleDisconnect(ws *websocket.Conn) {
 	user, ok := users[ws.Params("id")][ws]
 	if ok {
 		delete(users[ws.Params("id")], ws)
-		SendUsersList(ws)
 	}
 	_, exists := userAccs[ws.Params("id")][user.UserId]
 	if exists {
 		delete(userAccs[ws.Params("id")], user.UserId)
 	}
-	
+	SendUsersList(ws)
+
 }
 
 func SendUsersList(ws *websocket.Conn) {
