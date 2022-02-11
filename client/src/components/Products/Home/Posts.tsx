@@ -30,7 +30,7 @@ export default function Posts({
       <div className={"grid grid-rows-2 md:flex md:items-center md:ml-12 mt-4"}>
         <h1 className="text-3xl font-bold ">Latest {channel}</h1>
         <Button
-          className={"bg-black md:ml-auto mr-4"}
+          className={"z-0 bg-black md:ml-auto mr-4"}
           onClick={() => setShowAdd(!showAdd)}
         >
           Create Post

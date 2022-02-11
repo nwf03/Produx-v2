@@ -46,7 +46,13 @@ export default function PostView({
                   </Link>
                 )
               : data.user.pfp && (
-                  <Avatar squared bordered src={data.user.pfp} size="lg" />
+                  <Avatar
+                    className="z-0"
+                    squared
+                    bordered
+                    src={data.user.pfp}
+                    size="lg"
+                  />
                 )}
             <span className="font-bold pl-2 lg:mr-1 ">{data.title}</span>
             <span className="text-sm text-truncate ">

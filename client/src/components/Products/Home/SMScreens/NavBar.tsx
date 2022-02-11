@@ -10,7 +10,7 @@ export default function NavBar({ product }: { product: Product }) {
     Changelogs: { icon: "🔑", color: "#FF4D00" },
     Questions: { icon: "🤨", color: "#FF4D00" },
   };
-  const handleChannelChange = (e) => {
+  const handleChannelChange = (e: any) => {
     e.preventDefault();
   };
   return (
@@ -74,11 +74,6 @@ export default function NavBar({ product }: { product: Product }) {
             </div>
           </div>
         )}
-        {/* <div className={"flex gap-7 text-center"}>
-          <p>🌎 100k</p>
-          <p>🌎 100k</p>
-          <p>🌎 100k</p>
-        </div> */}
       </div>
     </div>
   );
