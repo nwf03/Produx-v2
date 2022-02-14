@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { NewProduct, Product, User, Post, UserInfo } from "../interfaces";
+import { NewProduct, Product, ProductUser, User, Post, UserInfo } from "../interfaces";
 import { RootState } from "../store";
 import { ProductPostsResponse } from "../interfaces";
 import { number } from "prop-types";
@@ -119,7 +119,7 @@ const api = createApi({
       invalidatesTags: ["User"],
     }),
     checkIfProductFollowed: builder.query<{followed:boolean
-    }, string>({
+    }, number>({
       query: (productId) => `products/isFollowed/${productId}`,
     }),
     getPostDetails: builder.query<Post, {postId: string,channel:string}>({
@@ -134,9 +134,12 @@ const api = createApi({
    }),
     invalidatesTags: ["Comments"]
   }),
-    getPosts: builder.query<Post[], {lastId?: number, productId: number, channel: string}>({
+    getPosts: builder.query<{posts: Post[], lastId: number}, {lastId?: number, productId: number, channel: string}>({
       query: ({lastId, productId, channel}) => `products/posts/${productId}/${channel}/${lastId || 0}`,
       providesTags: ["Posts"],
+    }),
+    getProductInfo: builder.query<{product: Product, users: ProductUser[]}, string>({
+      query: (productId) => `products/product/${productId}`,
     }),
   }),
 });
@@ -159,6 +162,8 @@ export const {
   useLazyGetPostDetailsQuery,
   useCreateCommentMutation,
   useGetPostDetailsQuery,
-  useGetPostsQuery
+  useGetPostsQuery,
+    useLazyGetPostsQuery,
+    useLazyGetProductInfoQuery
 } = api;
 export default api;

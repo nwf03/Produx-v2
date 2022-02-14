@@ -3,6 +3,7 @@ import HomeNavBar from "../../../src/components/Home/NavBar";
 import {
   useLazyGetProductsQuery,
   useLazyCheckIfProductFollowedQuery,
+  useLazyGetProductInfoQuery,
 } from "../../../src/state/reducers/api";
 import { Product, ProductUser } from "../../../src/state/interfaces";
 import Sidebar from "../../../src/components/Products/Home/Sidebar";
@@ -26,14 +27,11 @@ export default function ProductHome() {
   const { name } = router.query;
   console.log(name);
   const [checkIfFollowed] = useLazyCheckIfProductFollowedQuery();
-  const [getProduct, { data, isLoading, error }] = useLazyGetProductsQuery();
+  const [getProduct, { data, isLoading, error }] = useLazyGetProductInfoQuery();
 
   useEffect(() => {
     if (name) {
-      getProduct({
-        name: name as string,
-        page: 0,
-      });
+      getProduct(name as string);
     }
   }, [getProduct, name]);
   const [showPrivate, setShowPrivate] = useState(false);
@@ -51,12 +49,8 @@ export default function ProductHome() {
     }
   }, [data]);
   return (
-    <div>
-      {data && (
-        <div className="bg-white col-span-4 md:col-span-3 lg:col-span-3 h-screen overflow-y-scroll overflow-x-hidden">
-          {<Posts name={name as string} channel={channel} />}
-        </div>
-      )}
+    <div className="bg-green-200 h-screen m-12 rounded-box">
+      <h1 className="font-bold text-3xl mx-10 my-7">Homepage</h1>
     </div>
   );
 }

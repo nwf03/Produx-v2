@@ -39,14 +39,16 @@ func GetPosts(c *fiber.Ctx) error {
 
 	switch field {
 	case "suggestions":
-		suggestions, err := db.DB.GetBugs(productIdInt, afterIdInt, true)
+		suggestions, err := db.DB.GetSuggestions(productIdInt, afterIdInt, true)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"message": "error"})
 		}
 		if len(suggestions) == 0 {
 			return c.Status(404).JSON(fiber.Map{"message": "no suggestions"})
 		}
-		return c.JSON(fiber.Map{"lastId": suggestions[len(suggestions)-1].GetID(), "posts": suggestions})
+		lastId := suggestions[len(suggestions)-1].GetID()
+		oldestSug := db.DB.GetOldestSuggestions(productIdInt)
+		return c.JSON(fiber.Map{"lastId": lastId, "posts": suggestions, "hasMore": oldestSug.ID != lastId})
 	case "bugs":
 		bugs, err := db.DB.GetBugs(productIdInt, afterIdInt, true)
 		if err != nil {
@@ -56,7 +58,11 @@ func GetPosts(c *fiber.Ctx) error {
 		if len(bugs) == 0 {
 			return c.Status(404).JSON(fiber.Map{"message": "no bugs"})
 		}
-		return c.JSON(fiber.Map{"lastId": bugs[len(bugs)-1].GetID(), "posts": bugs})
+		oldestBug := db.DB.GetOldestBugs(productIdInt)
+		lastId := bugs[len(bugs)-1].GetID()
+		fmt.Println("Last id: ", lastId)
+		fmt.Println("oldest id: ", oldestBug.ID)
+		return c.JSON(fiber.Map{"lastId": lastId, "posts": bugs, "hasMore": oldestBug.ID != lastId})
 	case "changelogs":
 		changelogs, err := db.DB.GetChangelogs(productIdInt, afterIdInt, true)
 		if err != nil {

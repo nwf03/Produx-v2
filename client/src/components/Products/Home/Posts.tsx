@@ -1,22 +1,26 @@
-import { useGetProductsQuery } from "../../../state/reducers/api";
-import { useEffect, useState } from "react";
+import {
+  useGetPostsQuery,
+  useLazyGetPostsQuery,
+} from "../../../state/reducers/api";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { ProductPostsResponse } from "../../../state/interfaces";
 import Post from "../Post";
 import { Button } from "@nextui-org/react";
 import { Channel } from "../../../state/interfaces";
 import AddPost from "./AddPost";
 export default function Posts({
-  name,
+  productId,
+  productName,
   channel,
 }: {
-  name: string;
+  productId: number;
+  productName: string;
   channel: string;
 }) {
   const [showAdd, setShowAdd] = useState(false);
-  const { data, isLoading, error } = useGetProductsQuery({
-    name: name,
-    field: channel,
-    page: 1,
+  const { data, isLoading, error } = useGetPostsQuery({
+    productId,
+    channel: channel.toLowerCase(),
   });
   const channels: Channel = {
     Announcements: { icon: "🎉", color: "#FF9900" },
@@ -24,7 +28,26 @@ export default function Posts({
     Suggestions: { icon: "🙏", color: "#0094FF" },
     Changelogs: { icon: "🔑", color: "#FF4D00" },
   };
-  const { posts } = data ? (data as ProductPostsResponse) : { posts: [] };
+  // const [getPosts]
+  const [posts, setPosts] = useState(data ? data.posts : []);
+  console.log("posts:", data);
+  const [lastId, setLastID] = useState(data ? data.lastId : 0);
+  const hasMore = data ? data.hasMore : false;
+  const observer = useRef();
+  const lastPostRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          console.log("load more");
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading]
+  );
+
   return (
     <div className="items-center justify-center overflow-x-hidden">
       <div className={"grid grid-rows-2 md:flex md:items-center md:ml-12 mt-4"}>
@@ -37,7 +60,11 @@ export default function Posts({
         </Button>
       </div>
       {showAdd && (
-        <AddPost show={showAdd} setShow={setShowAdd} productName={name} />
+        <AddPost
+          show={showAdd}
+          setShow={setShowAdd}
+          productName={productName}
+        />
       )}
       <br />
       {isLoading && "Loading..."}
@@ -46,14 +73,19 @@ export default function Posts({
           <div className="w-screen">
             {posts.map((post, idx) => {
               return (
-                <Post
-                  showProductIcon={false}
+                <div
                   key={idx}
-                  data={post}
-                  channel={channel}
-                  color={channels[channel].color}
-                  showDivider={true}
-                />
+                  ref={idx == posts.length - 1 ? lastPostRef : null}
+                >
+                  {idx == posts.length - 1 && "LAST ONE"}
+                  <Post
+                    showProductIcon={false}
+                    data={post}
+                    channel={channel}
+                    color={channels[channel].color}
+                    showDivider={true}
+                  />
+                </div>
               );
             })}
           </div>

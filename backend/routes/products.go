@@ -26,7 +26,7 @@ func Products(app *fiber.App) {
 	products.Get("posts/:productId/:field/:afterId?", get.GetPosts)
 	products.Get("product/:product_name", get.GetProduct)
 	products.Get("/latest_posts/:field", get.LatestProductPosts)
-
+	products.Get("/dayStats/:productId", get.ProductDayStats)
 	products.Post("/create", post.CreateProduct)
 	products.Post("verify/:name", post.VerifyProduct)
 	products.Post("/follow/:product_name", post.FollowProduct)

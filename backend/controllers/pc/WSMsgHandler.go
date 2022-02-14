@@ -1,11 +1,16 @@
 package pc
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 	"tutorial/db"
+
+	"github.com/go-redis/redis/v8"
 
 	"github.com/golang-jwt/jwt/v4"
 
@@ -22,17 +27,47 @@ type Message struct {
 	User     MessageUser `json:"user"`
 	Message  string      `json:"message"`
 	Type     messageType `json:"type"`
-	DateSent time.Time   `json:"dateSent"`
+	DateSent string   `json:"dateSent"`
+}
+type socketConnection struct {
+	conn *websocket.Conn
+	user MessageUser
+	index int
+	mu sync.Mutex
+}
+func (c *socketConnection) sendMessage(msg interface{}) error{
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	fmt.Println("sendin message.....")
+	return c.conn.WriteJSON(msg)
+}
+func (msg *Message) UnmarshalBinary(data []byte) error {
+	if err := json.Unmarshal(data, &msg); err != nil {
+		return err
+	}
+	return nil
 }
 
-var users = make(map[string]map[*websocket.Conn]MessageUser)
-var userAccs = make(map[string]map[uint]MessageUser)
+func (msg *Message) MarshalBinary() ([]byte, error) {
+	return json.Marshal(msg)
+}
+
+var users = make(map[string][]*socketConnection)
+var UserAccs = make(map[string]map[*websocket.Conn]*socketConnection)
+
+var ctx = context.Background()
+var publisher = redis.NewClient(&redis.Options{
+	Addr:     "localhost:6379", // use default Addr
+	Password: "",               // no password set
+	DB:       0,
+})
 
 func WSMsgHandler(ws *websocket.Conn, msg string) {
-	if _, ok := users[ws.Params("id")][ws]; ok {
-		sendMessage(ws, msg)
+	if conn, ok := UserAccs[ws.Params("id")][ws]; ok {
+		publishMessage(conn, msg)
 		return
 	}
+
 	var UserInfo db.User
 	token, err := jwt.Parse(msg, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
@@ -44,14 +79,6 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	userId := claims["id"].(float64)
-	//todo make a dictionary of unique users and their connections
-	if _, ok := userAccs[ws.Params("id")]; ok {
-		if _, exists := userAccs[ws.Params("id")][uint(userId)]; exists {
-			users[ws.Params("id")][ws] = userAccs[ws.Params("id")][uint(userId)]
-			SendUsersList(ws)
-			return
-		}
-	}
 	err = db.DB.Select("ID, Name, Pfp").Where("id = ?", userId).First(&UserInfo).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		fmt.Println("user not found")
@@ -65,25 +92,24 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 		UserName: UserInfo.Name,
 		Pfp:      UserInfo.Pfp,
 	}
-	if _, ok := users[ws.Params("id")]; ok {
-		users[ws.Params("id")][ws] = user
-	} else {
-		users[ws.Params("id")] = make(map[*websocket.Conn]MessageUser)
-		users[ws.Params("id")][ws] = user
+	var connection = &socketConnection{
+		conn: ws,
+		user: user,
+		index: len(users[ws.Params("id")]),
 	}
-	if _, ok := userAccs[ws.Params("id")]; ok {
-		userAccs[ws.Params("id")][uint(userId)] = user
+	users[ws.Params("id")] = append(users[ws.Params("id")], connection)
+	if _, ok := UserAccs[ws.Params("id")]; ok {
+		UserAccs[ws.Params("id")][ws] = connection 
 	} else {
-		userAccs[ws.Params("id")] = make(map[uint]MessageUser)
-		userAccs[ws.Params("id")][uint(userId)] = user
+		UserAccs[ws.Params("id")] = make(map[*websocket.Conn]*socketConnection)
+		UserAccs[ws.Params("id")][ws] = connection 
 	}
-	SendUsersList(ws)
+	SendUsersList(ws.Params("id"))
 }
 
-func sendMessage(ws *websocket.Conn, msg string) {
-	finalMsg := makeMessage(ws, chatMsg, msg)
-	id := ws.Params("id")
-
+func publishMessage(conn *socketConnection, msg string) {
+	finalMsg := makeMessage(conn, chatMsg, msg)
+	id := conn.conn.Params("id")
 	if id != "" {
 		productId, err := strconv.ParseUint(id, 10, 32)
 		if err != nil {
@@ -91,51 +117,53 @@ func sendMessage(ws *websocket.Conn, msg string) {
 		}
 		dbMsg := db.Message{
 			ProductId: uint(productId),
-			UserID:    users[id][ws].UserId,
+			UserID:    conn.user.UserId,
 			Message:   finalMsg.Message,
 		}
 		db.DB.Create(&dbMsg)
 	}
-	for client := range users[id] {
-		err := client.WriteJSON(finalMsg)
+	if err := publisher.Publish(ctx, conn.conn.Params("id"), finalMsg).Err(); err != nil {
+		panic(err)
+	} 
+}
+func SendMessage(msg Message, productId string) {
+	for _,client := range users[productId] {
+		err := client.sendMessage(msg)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
-
-func makeMessage(ws *websocket.Conn, msgType messageType, msg string) *Message {
-	user := users[ws.Params("id")][ws]
+func makeMessage(conn *socketConnection, msgType messageType, msg string) *Message {
 	return &Message{
-		User:     user,
+		User:     conn.user,
 		Message:  msg,
 		Type:     msgType,
-		DateSent: time.Now(),
+		DateSent: time.Now().Local().String(),
 	}
 }
 
-func HandleDisconnect(ws *websocket.Conn) {
-	user, ok := users[ws.Params("id")][ws]
-	if ok {
-		delete(users[ws.Params("id")], ws)
-	}
-	_, exists := userAccs[ws.Params("id")][user.UserId]
+func HandleDisconnect(conn *socketConnection) {
+	users[conn.conn.Params("id")] = append(users[conn.conn.Params("id")][:conn.index], users[conn.conn.Params("id")][conn.index+1:]...)
+	// delete(users[ws.Params("id")], &conn)
+	_, exists := UserAccs[conn.conn.Params("id")][conn.conn]
+	productId := conn.conn.Params("id")
 	if exists {
-		delete(userAccs[ws.Params("id")], user.UserId)
+		delete(UserAccs[conn.conn.Params("id")],conn.conn)
 	}
-	SendUsersList(ws)
+	SendUsersList(productId)
 
 }
 
-func SendUsersList(ws *websocket.Conn) {
+func SendUsersList(productId string) {
 	var allUsers []MessageUser
-	for _, user := range userAccs[ws.Params("id")] {
-		allUsers = append(allUsers, user)
+	for _, conn := range UserAccs[productId] {
+		allUsers = append(allUsers, conn.user)
 	}
 	fmt.Println("connected users: ", len(allUsers))
 	fmt.Println("all users: ", allUsers)
-	for client := range users[ws.Params("id")] {
-		err := client.WriteJSON(struct {
+	for _,client  := range users[productId] {
+		err := client.sendMessage(struct {
 			Users []MessageUser `json:"users"`
 			Type  string        `json:"type"`
 		}{

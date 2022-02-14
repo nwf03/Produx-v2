@@ -16,6 +16,7 @@ export default function PostView({
   showProductIcon: boolean;
 }) {
   const router = useRouter();
+  const { name } = router.query;
   const pathToPost = `/products/[name]/[channel]/[postId]`;
   return (
     <div
@@ -23,7 +24,7 @@ export default function PostView({
         router.push({
           pathname: pathToPost,
           query: {
-            name: data.product.name,
+            name: data.product.name || (name as string),
             channel: channel,
             postId: data.ID,
           },
@@ -72,7 +73,13 @@ export default function PostView({
           </div>
           {showProductIcon && data.user.pfp && (
             <div className={"text-sm z-0 flex items-center mt-2 float-right "}>
-              <Avatar size={"sm"} src={data.user.pfp} bordered squared />
+              <Avatar
+                className="z-0"
+                size={"sm"}
+                src={data.user.pfp}
+                bordered
+                squared
+              />
               <p className={"ml-1"}>{data.user.name}</p>
             </div>
           )}

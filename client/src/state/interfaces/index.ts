@@ -87,7 +87,7 @@ const b1: ChannelInfo = {
 
 export interface ProductPostsResponse {
   posts: Post[];
-  page: number;
+  lastId: number
 }
 
 type images = { images: File[] | null };
@@ -103,3 +103,8 @@ export type ProductUser = Pick<User, "name" | "pfp"> & {
   role: string;
   id: number;
 };
+
+
+
+
+
