@@ -65,7 +65,7 @@ export default function Sidebar({
   // todo have a gear icon next to the product logo with a drop down menu where you can unfollow
   return (
     //  todo fix logo, name, and stat centering when screen size is md
-    <div className="bg-gray-100 h-screen justify-center flex overflow-auto">
+    <div className="bg-gray-100 h-[96vh]  justify-center flex overflow-auto">
       <div className="mt-4">
         <div className="left-0 top-0 md:left-5 md:top-4 fixed dropdown">
           <div className="m-1 cursor-pointer">
@@ -121,7 +121,26 @@ export default function Sidebar({
             <p>100k</p>
           </div>
         </div>
-        <div>
+        <div className="mt-5">
+          <Link
+            href={{
+              pathname: "/products/[name]/",
+              query: { name: product.name },
+            }}
+          >
+            <a>
+              <div
+                className="p-4 px-6 hover:bg-gray-200 hover:cursor-pointer mx-auto rounded-2xl my-2 w-[15vw] "
+                style={{
+                  backgroundColor: "Home" == channelName ? "white" : "",
+                }}
+              >
+                <p className="text-[30px] lg:text-[calc(10px+0.5vw)] text-center lg:text-left md:text-4xl">
+                  {"🏡"} {width >= mdBreakpoint && "Home"}
+                </p>
+              </div>
+            </a>
+          </Link>
           {Object.keys(channels).map((e) => {
             return (
               <Link

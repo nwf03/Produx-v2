@@ -1,5 +1,5 @@
 import { useGetLatestPostsQuery } from "../../state/reducers/api";
-import Post from "./Post";
+import Post from "./Home/Posts/Post";
 import { useState } from "react";
 import LoadingSpinner from "../LoadingSpinner";
 import { Channel } from "../../state/interfaces";

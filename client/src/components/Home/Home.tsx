@@ -1,12 +1,7 @@
 import LatestPosts from "../Products/LatestPosts";
 import Head from "next/head";
-import { useAppDispatch, useAppSelector } from "../../state/hooks";
-import { setUser, changeAuthStatus } from "../../state/reducers/auth";
-import { useEffect } from "react";
-import { useLazyGetUserInfoQuery } from "../../state/reducers/api";
 import FollowedProducts from "../Products/FollowedProducts";
 import TopProducts from "../Products/TopProducts";
-import { UserInfo } from "os";
 export default function Home() {
   return (
     <div className="grid grid-cols-4 justify-center align-middle h-[80px] lg:gap-2 sm:gap-2 ">

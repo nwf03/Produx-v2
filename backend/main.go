@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"tutorial/controllers/pc"
 	"tutorial/routes"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -15,13 +17,17 @@ import (
 )
 
 var redisClient = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379", // use default Addr
-	Password: "",               // no password set
+	Addr:     os.Getenv("REDIS_HOST") + ":6379", // use default Addr
+	Password: "",                                // no password set
 	DB:       0,
 })
 var ctx = context.Background()
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
 	var subscriber *redis.PubSub
 	app := fiber.New()
 	app.Use(cors.New())
@@ -43,21 +49,6 @@ func main() {
 		return fiber.ErrUpgradeRequired
 	})
 	app.Get("/ws/:id", websocket.New(func(c *websocket.Conn) {
-		subscriber = redisClient.Subscribe(ctx, c.Params("id"))
-		go func() {
-			for {
-				msg, err := subscriber.ReceiveMessage(ctx)
-				if err != nil {
-					panic(err)
-				}
-				var message pc.Message
-				if err = json.Unmarshal([]byte(msg.Payload), &message); err != nil {
-					panic(err)
-				}
-				pc.SendMessage(message, c.Params("id"))
-			}
-		}()
-
 		var (
 			msg []byte
 			err error
@@ -72,8 +63,22 @@ func main() {
 
 		}
 	}))
+	subscriber = redisClient.Subscribe(ctx, "messages")
+	go func() {
+		for {
+			msg, err := subscriber.ReceiveMessage(ctx)
+			if err != nil {
+				panic(err)
+			}
+			var message pc.Message
+			if err = json.Unmarshal([]byte(msg.Payload), &message); err != nil {
+				panic(err)
+			}
+			pc.SendMessage(message)
+		}
+	}()
 	fmt.Println("subscriber not nil")
-	err := app.Listen(":8000")
+	err = app.Listen(":8000")
 	if err != nil {
 		return
 	}

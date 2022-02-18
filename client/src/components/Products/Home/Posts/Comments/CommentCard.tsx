@@ -1,4 +1,4 @@
-import { Comment } from "../../state/interfaces";
+import { Comment } from "../../../../../state/interfaces";
 import { Avatar, Link } from "@nextui-org/react";
 import moment from "moment";
 import { userInfo } from "os";

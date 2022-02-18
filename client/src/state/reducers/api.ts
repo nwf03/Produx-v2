@@ -141,6 +141,15 @@ const api = createApi({
     getProductInfo: builder.query<{product: Product, users: ProductUser[]}, string>({
       query: (productId) => `products/product/${productId}`,
     }),
+    getProductDayPostCount: builder.query<{bugs: number, announcements:number, changelogs:number, suggestions: number}, number>({
+      query: (productId) => `products/dayStats/${productId}`,
+    }),
+    likePost: builder.mutation<void, {productId: number, postID: number, field:  string, like: boolean}>({
+      query: (data) => ({
+        url: `products/${data.like ? "like" : "dislike"}_post/${data.productId}/${data.field}/${data.postID}`,
+        method: "PUT",
+      }),
+    })
   }),
 });
 
@@ -164,6 +173,7 @@ export const {
   useGetPostDetailsQuery,
   useGetPostsQuery,
     useLazyGetPostsQuery,
-    useLazyGetProductInfoQuery
+    useLazyGetProductInfoQuery,
+    useGetProductDayPostCountQuery
 } = api;
 export default api;

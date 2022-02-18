@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BasicInfo from "../Products/Create/BasicInfo";
+import BasicInfo from "../Products/CreateProduct/BasicInfo";
 import SearchProducts from "../Products/SearchProducts";
 import { useAppSelector } from "../../state/hooks";
 import { useRouter } from "next/router";

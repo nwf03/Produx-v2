@@ -12,7 +12,7 @@ func GetUserInfo(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var userInfo db.User
-	db.DB.Preload("FollowedProducts").Preload("LikedProducts").Preload("Products").First(&userInfo, "id = ?", id)
+	db.DB.Preload("FollowedProducts").Preload("LikedProducts").Preload("Products").First(&userInfo, "id = ?", uint(id))
 	if userInfo.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "User not found"})
 	}

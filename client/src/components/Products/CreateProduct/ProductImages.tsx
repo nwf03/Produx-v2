@@ -142,7 +142,7 @@ export default function ProductImages({ product }: { product: NewProduct }) {
             Cancel
           </Button>
           <Button auto clickable={!isLoading} onClick={handleCreate}>
-            {isLoading ? <Loading color="white" size="sm" /> : "Create!"}
+            {isLoading ? <Loading color="white" size="sm" /> : "CreateProduct!"}
           </Button>
         </Modal.Footer>
         {error && <p className={"text-red-400 mb-3"}>{error.data ? error.data.message : "error"}</p>}

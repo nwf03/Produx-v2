@@ -48,6 +48,8 @@ export interface Post {
   title: string;
   description: string;
   commentsCount?: number;
+  likes: number;
+  dislikes: number;
   comments?: []Comments;
 }
 

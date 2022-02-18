@@ -3,14 +3,14 @@ import Head from "next/head";
 import HomeLayout from "../../../../src/components/Products/Home/HomeLayout";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useLazyGetPostsQuery } from "../../../../src/state/reducers/api";
-import Post from "../../../../src/components/Products/Post";
+import Post from "../../../../src/components/Products/Home/Posts/Post";
 import { ProductPostsResponse } from "../../../../src/state/interfaces";
 import { Button, Loading } from "@nextui-org/react";
 import { setChannel } from "../../../../src/state/reducers/channelSlice";
-import AddPost from "../../../../src/components/Products/Home/AddPost";
+import AddPost from "../../../../src/components/Products/Home/Posts/AddPost";
 import { useAppDispatch } from "../../../../src/state/hooks";
 import LoadingSpinner from "../../../../src/components/LoadingSpinner";
-export default function Channel({ productId }: { productId: number }) {
+export default function Channel({ productId,owner }: { productId: number, owner:boolean }) {
   const [showAdd, setShowAdd] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -56,7 +56,6 @@ export default function Channel({ productId }: { productId: number }) {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          console.log(data.hasMore, data.lastId);
           setLastId(data.lastId);
         }
       });

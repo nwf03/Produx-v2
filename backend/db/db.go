@@ -3,13 +3,20 @@ package db
 import (
 	"fmt"
 	"log"
+	"os"
+	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func GetDB() *gorm.DB {
-	dsn := "host=localhost user=nwf password=root dbname=ps1 port=5432 sslmode=disable"
+  err := godotenv.Load(".env")
+  if err != nil{
+    panic(err)
+  }
+	dsn := "host="+os.Getenv("POSTGRES_HOST")+" user=nwf password=root dbname=ps1 port=5432 sslmode=disable"
 	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -19,7 +26,7 @@ func GetDB() *gorm.DB {
 	}
 	err2 := DB.AutoMigrate(&User{}, &Product{}, &Suggestion{}, &Bug{},
 		&Changelog{}, &Announcement{}, &ProductUser{}, &BugComment{},
-		&SuggestionComment{}, &Message{})
+		&SuggestionComment{}, &AnnouncementComment{}, &Message{})
 	if err2 != nil {
 		log.Fatal(err2)
 	}
@@ -111,3 +118,30 @@ func (db *DBConn) GetOldestBugs(productId int64) Bug {
 	db.Find(&bug, query)
 	return bug
 }
+func (db *DBConn) ProductFieldPostCount(productId int64, field field) int64 {
+	var count int64 = 0
+	today := time.Now()
+	year, month, day := today.Date()
+	dayStart := time.Date(year, month, day, 0, 0, 0, 0, today.Location())
+	dayEnd := time.Date(year, month, day, 23, 59, 59, 0, today.Location())
+	switch field {
+	case Bugs:
+		db.Model(Bug{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+	case Suggestions:
+		db.Model(Suggestion{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+	case Changelogs:
+		db.Model(Changelog{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+	case Announcements:
+		db.Model(Announcement{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+	}
+	return count
+}
+
+type field string
+
+const (
+	Bugs          field = "bugs"
+	Suggestions   field = "suggestions"
+	Changelogs    field = "changelogs"
+	Announcements field = "announcements"
+)

@@ -2,10 +2,11 @@ package get
 
 import (
 	"errors"
-	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 	"strings"
 	"tutorial/db"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 func GetPostComments(c *fiber.Ctx) error {
@@ -21,6 +22,13 @@ func GetPostComments(c *fiber.Ctx) error {
 		return c.JSON(post)
 	case "suggestions":
 		var post db.Suggestion
+		err := db.DB.Preload("Product").Preload("Comments").Preload("Comments.User").Preload("User").Where("id = ?", postId).Find(&post).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fiber.ErrUnauthorized
+		}
+		return c.JSON(post)
+	case "announcements":
+		var post db.Announcement
 		err := db.DB.Preload("Product").Preload("Comments").Preload("Comments.User").Preload("User").Where("id = ?", postId).Find(&post).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.ErrUnauthorized

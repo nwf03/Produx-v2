@@ -27,6 +27,10 @@ func Products(app *fiber.App) {
 	products.Get("product/:product_name", get.GetProduct)
 	products.Get("/latest_posts/:field", get.LatestProductPosts)
 	products.Get("/dayStats/:productId", get.ProductDayStats)
+	products.Get("test", get.GetLatestPosts)
+
+	products.Put("like_post/:productId/:field/:postId", patch.LikePost)
+	products.Put("dislike_post/:productId/:field/:postId", patch.DislikePost)
 	products.Post("/create", post.CreateProduct)
 	products.Post("verify/:name", post.VerifyProduct)
 	products.Post("/follow/:product_name", post.FollowProduct)

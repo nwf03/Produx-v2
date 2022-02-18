@@ -1,5 +1,5 @@
-import { Post } from "../../state/interfaces";
-import { Avatar, Link } from "@nextui-org/react";
+import { Post } from "../../../../state/interfaces";
+import {Avatar, Link, Tooltip} from "@nextui-org/react";
 import moment from "moment";
 import { useRouter } from "next/router";
 export default function PostView({
@@ -20,21 +20,22 @@ export default function PostView({
   const pathToPost = `/products/[name]/[channel]/[postId]`;
   return (
     <div
-      onClick={() =>
-        router.push({
-          pathname: pathToPost,
-          query: {
-            name: data.product.name || (name as string),
-            channel: channel,
-            postId: data.ID,
-          },
-        })
-      }
-      className={`${!showDivider && "mb-6 w-auto"} cursor-pointer`}
+        onClick={() =>
+            router.push({
+              pathname: pathToPost,
+              query: {
+                name: data.product.name || (name as string),
+                channel: channel,
+                postId: data.ID,
+              },
+            })
+        }
+        className={`${!showDivider && "mb-6 w-auto"} cursor-pointer`}
     >
       <div className="bg-white p-5 rounded-3xl  min-w-[20vw] mb-4 items-center mx-12 mt-4 md:mt-0">
         <div className="grid-cols-3 flex align-bottom ">
-          <div className="flex items-center">
+          <div
+              className="flex items-center">
             {showProductIcon
               ? data.product.images && (
                   <Link href={`products/${data.product.name}`}>
@@ -70,13 +71,13 @@ export default function PostView({
         <div>
           <div className="mt-3">
             <span className={"break-all"}>{data.description}</span>
-          </div>
+        </div>
           {showProductIcon && data.user.pfp && (
-            <div className={"text-sm z-0 flex items-center mt-2 float-right "}>
+            <div className={"z-0 text-sm flex items-center mt-2 float-right "}>
               <Avatar
-                className="z-0"
                 size={"sm"}
                 src={data.user.pfp}
+                className={'z-0'}
                 bordered
                 squared
               />
@@ -101,6 +102,13 @@ export default function PostView({
               />
             </svg>
             <p className={"ml-1"}>{data.commentsCount} </p>
+            <p className={"mx-1"}>|</p>
+            <Tooltip content={"Like post"}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+            </svg>
+          <p>{data.likes}</p>
+            </Tooltip>
           </div>
         </div>
         {showProductIcon && <div className={"h-2"} />}

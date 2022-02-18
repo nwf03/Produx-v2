@@ -1,6 +1,6 @@
 import { ChangeEvent, MouseEventHandler, useState } from "react";
 import { Loading, Button, Textarea } from "@nextui-org/react";
-import { useCreateCommentMutation } from "../../../state/reducers/api";
+import { useCreateCommentMutation } from "../../../../../state/reducers/api";
 export default function AddComment({
   field,
   postId,

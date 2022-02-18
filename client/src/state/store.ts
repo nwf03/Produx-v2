@@ -4,12 +4,14 @@ import { setupListeners } from "@reduxjs/toolkit/query/react";
 import authReducer from "./reducers/auth";
 import channelReducer from "./reducers/channelSlice";
 import createProductReducer from "./reducers/createProductSlice";
+import productReducer from "./reducers/productSlice";
 const store = configureStore({
   reducer: {
     auth: authReducer,
     [api.reducerPath]: api.reducer,
     channel: channelReducer,
-    newProduct:createProductReducer
+    newProduct:createProductReducer,
+    product: productReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),

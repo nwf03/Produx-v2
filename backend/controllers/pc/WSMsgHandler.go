@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -27,6 +28,7 @@ type Message struct {
 	User     MessageUser `json:"user"`
 	Message  string      `json:"message"`
 	Type     messageType `json:"type"`
+	ProductId	string 	`json:"productId"`
 	DateSent string   `json:"dateSent"`
 }
 type socketConnection struct {
@@ -57,7 +59,7 @@ var UserAccs = make(map[string]map[*websocket.Conn]*socketConnection)
 
 var ctx = context.Background()
 var publisher = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379", // use default Addr
+	Addr:     os.Getenv("REDIS_HOST")+":6379", // use default Addr
 	Password: "",               // no password set
 	DB:       0,
 })
@@ -122,12 +124,12 @@ func publishMessage(conn *socketConnection, msg string) {
 		}
 		db.DB.Create(&dbMsg)
 	}
-	if err := publisher.Publish(ctx, conn.conn.Params("id"), finalMsg).Err(); err != nil {
+	if err := publisher.Publish(ctx, "messages", finalMsg).Err(); err != nil {
 		panic(err)
 	} 
 }
-func SendMessage(msg Message, productId string) {
-	for _,client := range users[productId] {
+func SendMessage(msg Message) {
+	for _,client := range users[msg.ProductId] {
 		err := client.sendMessage(msg)
 		if err != nil {
 			panic(err)
@@ -139,11 +141,14 @@ func makeMessage(conn *socketConnection, msgType messageType, msg string) *Messa
 		User:     conn.user,
 		Message:  msg,
 		Type:     msgType,
+		ProductId: conn.conn.Params("id"),
 		DateSent: time.Now().Local().String(),
 	}
 }
 
 func HandleDisconnect(conn *socketConnection) {
+	// todo this code leads to slice out of range error when use disconnects 
+	// todo find another way to fix this
 	users[conn.conn.Params("id")] = append(users[conn.conn.Params("id")][:conn.index], users[conn.conn.Params("id")][conn.index+1:]...)
 	// delete(users[ws.Params("id")], &conn)
 	_, exists := UserAccs[conn.conn.Params("id")][conn.conn]

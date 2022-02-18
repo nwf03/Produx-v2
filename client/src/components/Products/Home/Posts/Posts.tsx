@@ -1,12 +1,12 @@
 import {
   useGetPostsQuery,
   useLazyGetPostsQuery,
-} from "../../../state/reducers/api";
+} from "../../../../state/reducers/api";
 import { useCallback, useRef, useEffect, useState } from "react";
-import { ProductPostsResponse } from "../../../state/interfaces";
-import Post from "../Post";
+import { ProductPostsResponse } from "../../../../state/interfaces";
+import Post from "./Post";
 import { Button } from "@nextui-org/react";
-import { Channel } from "../../../state/interfaces";
+import { Channel } from "../../../../state/interfaces";
 import AddPost from "./AddPost";
 export default function Posts({
   productId,

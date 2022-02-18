@@ -13,7 +13,7 @@ import ChannelFilters from "../../../../src/components/Products/Home/SMScreens/C
 import ProductUsers from "../../../../src/components/Products/Home/ProductUsers";
 import Head from "next/head";
 import AccessPrivateProduct from "../../../../src/components/Products/AccessPrivateProduct";
-import PostDetails from "../../../../src/components/Products/PostDetails";
+import PostDetails from "../../../../src/components/Products/Home/Posts/PostDetails";
 import HomeLayout from "../../../../src/components/Products/Home/HomeLayout";
 import LoadingSpinner from "../../../../src/components/LoadingSpinner";
 export default function PostView() {

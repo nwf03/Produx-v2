@@ -2,11 +2,12 @@ package post
 
 import (
 	"errors"
+	"strings"
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
-	"strings"
-	"tutorial/db"
 )
 
 type CCReq struct {
@@ -55,6 +56,22 @@ func CreateComment(c *fiber.Ctx) error {
 		var CommentInfo db.SuggestionComment
 		CommentInfo.UserID = UserInfo.ID
 		CommentInfo.SuggestionID = SuggestionInfo.ID
+		CommentInfo.User = UserInfo
+		CommentInfo.Comment = req.Comment
+		err = db.DB.Create(&CommentInfo).Error
+		if err != nil {
+			return err
+		}
+		return c.Status(200).JSON(CommentInfo)
+	case "announcements":
+		var announcementInfo db.Announcement
+		err := db.DB.Where("id = ?", req.PostID).First(&announcementInfo).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fiber.ErrUnauthorized
+		}
+		var CommentInfo db.AnnouncementComment
+		CommentInfo.UserID = UserInfo.ID
+		CommentInfo.AnnouncementID = announcementInfo.ID
 		CommentInfo.User = UserInfo
 		CommentInfo.Comment = req.Comment
 		err = db.DB.Create(&CommentInfo).Error

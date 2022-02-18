@@ -1,40 +1,39 @@
 import { useRouter } from "next/router";
 import HomeNavBar from "../../Home/NavBar";
 import {
-  useLazyGetProductsQuery,
+  useLazyGetProductInfoQuery,
   useLazyCheckIfProductFollowedQuery,
 } from "../../../state/reducers/api";
 import { Product, ProductUser } from "../../../state/interfaces";
 import Sidebar from "./Sidebar";
-import Posts from "./Posts";
+import Posts from "./Posts/Posts";
 import { useState, useEffect, cloneElement } from "react";
 import SmallNavBar from "./SMScreens/NavBar";
-import { useAppSelector } from "../../../state/hooks";
+import { useAppSelector, useAppDispatch } from "../../../state/hooks";
 import ChannelFilters from "./SMScreens/ChannelFilters";
 import NavBar from "../../Home/NavBar";
 import ProductUsers from "./ProductUsers";
 import Head from "next/head";
 import AccessPrivateProduct from "../AccessPrivateProduct";
 import { Loading } from "@nextui-org/react";
+import {setIsOwner} from "../../../state/reducers/productSlice";
 interface ProductResponse {
   product: Product;
   users: ProductUser[];
 }
 import LoadingSpinner from "../../LoadingSpinner";
 export default function ProductHome({ children }) {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const channel = useAppSelector((state) => state.channel.channel);
   const { name } = router.query;
   console.log(name);
   const [checkIfFollowed] = useLazyCheckIfProductFollowedQuery();
-  const [getProduct, { data, isLoading, error }] = useLazyGetProductsQuery();
+  const [getProduct, { data, isLoading, error }] = useLazyGetProductInfoQuery();
 
   useEffect(() => {
     if (name) {
-      getProduct({
-        name: name as string,
-        page: 0,
-      });
+      getProduct(name as string);
     }
   }, [getProduct, name]);
   const [showPrivate, setShowPrivate] = useState(false);
@@ -49,8 +48,11 @@ export default function ProductHome({ children }) {
           setShowPrivate(true);
         }
       });
+    }else if (data){
+      dispatch(setIsOwner(data.owner));
     }
   }, [data]);
+  const showProductUsers = router.pathname != "/products/[name]";
   return (
     <div>
       <Head>
@@ -72,18 +74,25 @@ export default function ProductHome({ children }) {
           <div className={"md:hidden"}>
             <SmallNavBar product={data.product} />
           </div>
-          <div className="bg-white col-span-4 md:col-span-3 lg:col-span-3 h-screen overflow-y-scroll overflow-x-hidden">
+          <div
+            className={`bg-white col-span-4 md:col-span-3 ${
+              showProductUsers ? "lg:col-span-3" : "lg:col-span-4"
+            } h-screen overflow-y-scroll overflow-x-hidden`}
+          >
             {cloneElement(children, {
               productId: data.product.ID,
+              owner: data.owner,
             })}
           </div>
-          <div className="hidden lg:block h-screen">
-            <ProductUsers
-              users={data ? data.users : []}
-              productId={data ? data.product.ID : 0}
-              productUserID={data ? data.product.userID : 0}
-            />
-          </div>
+          {showProductUsers && (
+            <div className="hidden lg:block h-screen">
+              <ProductUsers
+                users={data ? data.users : []}
+                productId={data ? data.product.ID : 0}
+                productUserID={data ? data.product.userID : 0}
+              />
+            </div>
+          )}
         </div>
       )}
       {data && (

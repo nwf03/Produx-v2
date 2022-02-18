@@ -1,4 +1,4 @@
-import QuickQuestions from "../../../src/components/Products/Home/QuickQuestions";
+import QuickQuestions from "../../../src/components/Products/Home/Posts/QuickQuestions";
 import { useRouter } from "next/router";
 import HomeLayout from "../../../src/components/Products/Home/HomeLayout";
 import { useAppDispatch } from "../../../src/state/hooks";

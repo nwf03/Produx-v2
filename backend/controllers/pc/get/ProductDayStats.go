@@ -1,18 +1,28 @@
 package get
 
 import (
-	"time"
-	"tutorial/db"
-
 	"github.com/gofiber/fiber/v2"
+	"strconv"
+	"tutorial/db"
 )
 
 func ProductDayStats(c *fiber.Ctx) error {
-	var count int64 
-	today := time.Now()
-	year, month, day := today.Date()
-	dayStart := time.Date(year, month, day, 0, 0, 0, 0, today.Location())
-	dayEnd := time.Date(year, month, day, 23, 59, 59, 0, today.Location())
-	db.DB.Model(db.Bug{}).Where("product_id = ? and created_at BETWEEN ? AND ?", c.Params("productId"),dayStart, dayEnd).Count(&count)
-	return c.JSON(fiber.Map{"count": count})
+	//convert string to uint
+	productIdInt, err := strconv.ParseInt(c.Params("productId"), 10, 32)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "product id must be an integer",
+		})
+	}
+	bugCount := db.DB.ProductFieldPostCount(productIdInt, db.Bugs)
+	suggestionCount := db.DB.ProductFieldPostCount(productIdInt, db.Suggestions)
+	announcementCount := db.DB.ProductFieldPostCount(productIdInt, db.Announcements)
+	changelogsCount := db.DB.ProductFieldPostCount(productIdInt, db.Changelogs)
+	return c.JSON(fiber.Map{
+		"bugs":          bugCount,
+		"announcements": announcementCount,
+		"changelogs":    changelogsCount,
+		"suggestions":   suggestionCount,
+	})
+
 }
