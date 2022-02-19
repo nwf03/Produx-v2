@@ -30,15 +30,15 @@ func CreatePost(c *fiber.Ctx) error {
 	db.DB.First(&userInfo, "id = ?", id)
 
 	switch field {
-	case "Suggestions":
-		newField = new(db.Suggestion)
-		newField.(*db.Suggestion).UserID = uint(id)
-		newField.(*db.Suggestion).ProductID = product.ID
-	case "Bugs":
-		newField = new(db.Bug)
-		newField.(*db.Bug).UserID = uint(id)
-
-		newField.(*db.Bug).ProductID = product.ID
+	//case "Suggestions":
+	//	newField = new(db.Suggestion)
+	//	newField.(*db.Suggestion).UserID = uint(id)
+	//	newField.(*db.Suggestion).ProductID = product.ID
+	//case "Bugs":
+	//	newField = new(db.Bug)
+	//	newField.(*db.Bug).UserID = uint(id)
+	//
+	//	newField.(*db.Bug).ProductID = product.ID
 	case "Changelogs":
 		newField = new(db.Changelog)
 		newField.(*db.Changelog).UserID = uint(id)

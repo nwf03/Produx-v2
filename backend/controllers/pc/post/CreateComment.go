@@ -30,55 +30,76 @@ func CreateComment(c *fiber.Ctx) error {
 		return fiber.ErrUnauthorized
 	}
 	req.Field = strings.ToLower(req.Field)
-	switch req.Field {
-	case "bugs":
-		var BugInfo db.Bug
-		err := db.DB.Where("id = ?", req.PostID).First(&BugInfo).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fiber.ErrUnauthorized
-		}
-		var CommentInfo db.BugComment
-		CommentInfo.UserID = UserInfo.ID
-		CommentInfo.BugID = BugInfo.ID
-		CommentInfo.User = UserInfo
-		CommentInfo.Comment = req.Comment
-		err = db.DB.Create(&CommentInfo).Error
-		if err != nil {
-			return err
-		}
-		return c.Status(200).JSON(CommentInfo)
-	case "suggestions":
-		var SuggestionInfo db.Suggestion
-		err := db.DB.Where("id = ?", req.PostID).First(&SuggestionInfo).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fiber.ErrUnauthorized
-		}
-		var CommentInfo db.SuggestionComment
-		CommentInfo.UserID = UserInfo.ID
-		CommentInfo.SuggestionID = SuggestionInfo.ID
-		CommentInfo.User = UserInfo
-		CommentInfo.Comment = req.Comment
-		err = db.DB.Create(&CommentInfo).Error
-		if err != nil {
-			return err
-		}
-		return c.Status(200).JSON(CommentInfo)
-	case "announcements":
-		var announcementInfo db.Announcement
-		err := db.DB.Where("id = ?", req.PostID).First(&announcementInfo).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fiber.ErrUnauthorized
-		}
-		var CommentInfo db.AnnouncementComment
-		CommentInfo.UserID = UserInfo.ID
-		CommentInfo.AnnouncementID = announcementInfo.ID
-		CommentInfo.User = UserInfo
-		CommentInfo.Comment = req.Comment
-		err = db.DB.Create(&CommentInfo).Error
-		if err != nil {
-			return err
-		}
-		return c.Status(200).JSON(CommentInfo)
+	if !db.ValidType(req.Field) {
+		return fiber.ErrBadRequest
 	}
-	return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
+	var PostInfo db.Post
+	err = db.DB.Where("id = ?", req.PostID).First(&PostInfo).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.ErrNotFound
+	}
+
+	err = db.DB.Where("id = ?", req.PostID).First(&PostInfo).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.ErrUnauthorized
+	}
+	var CommentInfo db.Comment
+	CommentInfo.UserID = UserInfo.ID
+	CommentInfo.PostID = PostInfo.ID
+	CommentInfo.User = UserInfo
+	CommentInfo.Comment = req.Comment
+	err = db.DB.Create(&CommentInfo).Error
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(CommentInfo)
+	//switch req.Field {
+	//case "bugs":
+	//	var BugInfo db.Bug
+	//	err := db.DB.Where("id = ?", req.PostID).First(&BugInfo).Error
+	//	if errors.Is(err, gorm.ErrRecordNotFound) {
+	//		return fiber.ErrUnauthorized
+	//	}
+	//	var CommentInfo db.BugComment
+	//	CommentInfo.UserID = UserInfo.ID
+	//	CommentInfo.BugID = BugInfo.ID
+	//	CommentInfo.User = UserInfo
+	//	CommentInfo.Comment = req.Comment
+	//	err = db.DB.Create(&CommentInfo).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return c.Status(200).JSON(CommentInfo)
+	//case "suggestions":
+	//	var SuggestionInfo db.Suggestion
+	//	err := db.DB.Where("id = ?", req.PostID).First(&SuggestionInfo).Error
+	//	if errors.Is(err, gorm.ErrRecordNotFound) {
+	//		return fiber.ErrUnauthorized
+	//	}
+	//	var CommentInfo db.SuggestionComment
+	//	CommentInfo.UserID = UserInfo.ID
+	//	CommentInfo.SuggestionID = SuggestionInfo.ID
+	//	CommentInfo.User = UserInfo
+	//	CommentInfo.Comment = req.Comment
+	//	err = db.DB.Create(&CommentInfo).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return c.Status(200).JSON(CommentInfo)
+	//case "announcements":
+	//	var announcementInfo db.Announcement
+	//	err := db.DB.Where("id = ?", req.PostID).First(&announcementInfo).Error
+	//	if errors.Is(err, gorm.ErrRecordNotFound) {
+	//		return fiber.ErrUnauthorized
+	//	}
+	//	var CommentInfo db.AnnouncementComment
+	//	CommentInfo.UserID = UserInfo.ID
+	//	CommentInfo.AnnouncementID = announcementInfo.ID
+	//	CommentInfo.User = UserInfo
+	//	CommentInfo.Comment = req.Comment
+	//	err = db.DB.Create(&CommentInfo).Error
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 }

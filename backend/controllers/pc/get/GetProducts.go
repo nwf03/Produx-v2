@@ -98,38 +98,6 @@ func GetProducts(c *fiber.Ctx) error {
 		}
 		pageCount := mw.GetPageCount(int64(len(products)))
 		return c.Status(200).JSON(fiber.Map{"products": products, "pages": pageCount})
-	} else if mw.ValidFields(field) {
-		var product db.Product
-		db.DB.Preload(field).Preload(field+".User").Where("name = ?", name).First(&product)
-
-		if product.ID == 0 {
-			return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
-		}
-		switch field {
-		case "Suggestions":
-			var suggestions []db.Suggestion
-			db.DB.Model(&db.Suggestion{}).Count(&count)
-			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&suggestions, "product_id = ?", product.ID)
-			return c.Status(200).JSON(fiber.Map{"posts": suggestions, "pages": mw.GetPageCount(count)})
-		case "Bugs":
-			var bugs []db.Bug
-			db.DB.Model(&db.Bug{}).Count(&count)
-
-			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&bugs, "product_id = ?", product.ID)
-			return c.Status(200).JSON(fiber.Map{"pages": mw.GetPageCount(count), "posts": bugs})
-		case "Changelogs":
-			db.DB.Model(&db.Changelog{}).Count(&count)
-			var changelogs []db.Changelog
-			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&changelogs, "product_id = ?", product.ID)
-			return c.Status(200).JSON(fiber.Map{"posts": changelogs, "pages": mw.GetPageCount(count)})
-		case "Announcements":
-			var announcements []db.Announcement
-			db.DB.Model(&db.Announcement{}).Count(&count)
-			db.DB.Preload("Product").Preload("User").Limit(10).Offset(int(pageNum)*10-10).Order("created_at desc").Find(&announcements, "product_id = ?", product.ID)
-			return c.Status(200).JSON(fiber.Map{"posts": announcements, "pages": mw.GetPageCount(count)})
-		}
-		return c.Status(404).JSON(fiber.Map{"message": "Field not found"})
-	} else {
-		return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
 	}
+	return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
 }

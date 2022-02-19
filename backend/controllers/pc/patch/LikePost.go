@@ -10,7 +10,13 @@ import (
 
 func LikePost(c *fiber.Ctx) error {
 	postId := c.Params("postId")
-	field := c.Params("field")
+	field := strings.ToLower(c.Params("field"))
+	if !db.ValidType(field) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Invalid field",
+		})
+	}
 	productId := c.Params("productId")
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -19,23 +25,20 @@ func LikePost(c *fiber.Ctx) error {
 	db.DB.Where("id = ?", userId).Find(&User)
 	var post db.PostLiker
 
-	field = strings.ToLower(field)
 	switch field {
 	case "bugs":
-		post = new(db.Bug)
 	case "suggestions":
-		post = new(db.Suggestion)
 	case "announcements":
-		post = new(db.Announcement)
+		post = new(db.Post)
 	case "changelogs":
 		post = new(db.Changelog)
 	}
-	db.DB.First(&post, "id = ? AND product_id = ?", postId, productId)
+	db.DB.First(&post, "id = ? AND product_id = ? and type=?", postId, productId, field)
 	err := post.Like(User)
 	if err != nil {
 		return c.Status(500).JSON(err)
 	}
 	return c.JSON(fiber.Map{
-    "message": "success",
-  })
+		"message": "success",
+	})
 }
