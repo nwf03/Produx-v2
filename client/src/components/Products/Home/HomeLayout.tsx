@@ -16,7 +16,7 @@ import ProductUsers from "./ProductUsers";
 import Head from "next/head";
 import AccessPrivateProduct from "../AccessPrivateProduct";
 import { Loading } from "@nextui-org/react";
-import {setIsOwner} from "../../../state/reducers/productSlice";
+import {setIsOwner, setProductId} from "../../../state/reducers/productSlice";
 interface ProductResponse {
   product: Product;
   users: ProductUser[];
@@ -50,6 +50,7 @@ export default function ProductHome({ children }) {
       });
     }else if (data){
       dispatch(setIsOwner(data.owner));
+      dispatch(setProductId(data.product.ID))
     }
   }, [data]);
   const showProductUsers = router.pathname != "/products/[name]";
@@ -69,7 +70,7 @@ export default function ProductHome({ children }) {
       {data && (
         <div className="grid  md:grid-cols-4 lg:grid-cols-5 items-center h-screen">
           <div className="hidden md:block">
-            <Sidebar product={data.product} channel={channel} />
+            <Sidebar product={data.product} userCount={data.usersCount} postCount={data.postsCount} channel={channel} />
           </div>
           <div className={"md:hidden"}>
             <SmallNavBar product={data.product} />

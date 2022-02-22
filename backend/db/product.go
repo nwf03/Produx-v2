@@ -12,24 +12,48 @@ import (
 
 type Product struct {
 	gorm.Model
-	UserID        uint           `json:"userID,omitempty"`
-	Name          string         `json:"name,omitempty"`
-	Users         []User         `json:"users,omitempty" gorm:"many2many:followed_products;"`
-	Description   string         `json:"description,omitempty"`
-	Suggestions   []Suggestion   `json:"suggestions,omitempty"`
-	Bugs          []Bug          `json:"bugs,omitempty"`
-	Changelogs    []Changelog    `json:"changeLogs,omitempty"`
-	Announcements []Announcement `json:"announcements,omitempty"`
-	Images        pq.StringArray `json:"images" gorm:"type:text[]"`
-	UserLikes     []User         `json:"user_likes" gorm:"many2many:likes;"`
-	LikesCount    int64          `json:"likes" gorm:"default:0"`
-	Verified      bool           `json:"verified" gorm:"default:false"`
-	Private       bool           `json:"private" gorm:"default:false"`
-	AccessToken   string         `json:"accessToken" gorm:"default:''"`
-	TSV           string         `gorm:"index:tsv_index;type:tsvector"`
-	Messages      []Message      `json:"messages"`
+	UserID      uint   `json:"userID,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Users       []User `json:"users,omitempty" gorm:"many2many:followed_products;"`
+	Description string `json:"description,omitempty"`
+	Posts       []Post `json:"posts,omitempty"`
+	//Suggestions   []Suggestion   `json:"suggestions,omitempty"`
+	//Bugs          []Bug          `json:"bugs,omitempty"`
+	//Announcements []Announcement `json:"announcements,omitempty"`
+	Changelogs  []Changelog    `json:"changeLogs,omitempty"`
+	Images      pq.StringArray `json:"images" gorm:"type:text[]"`
+	UserLikes   []User         `json:"user_likes" gorm:"many2many:likes;"`
+	LikesCount  int64          `json:"likes" gorm:"default:0"`
+	Verified    bool           `json:"verified" gorm:"default:false"`
+	Private     bool           `json:"private" gorm:"default:false"`
+	AccessToken string         `json:"accessToken" gorm:"default:''"`
+  TSV         string         `gorm:"index:tsv_index;type:tsvector" json:"-"`
+	Messages    []Message      `json:"messages"`
+	// UnderReview []Post         `json:"underReview"`
+	// WorkingOn   []Post         `json:"workingOn"`
+	// Done        []Post         `json:"done"`
 }
 
+// func (p *Product) AddToUnderReview(post Post) {
+// 	DB.Model(&p).Association("UnderReview").Append(post)
+// }
+// func (p *Product) AddToWorkingOn(post Post) {
+// 	DB.Model(&p).Association("WorkingOn").Append(post)
+// }
+// func (p *Product) AddToDone(post Post) {
+// 	DB.Model(&p).Association("Done").Append(post)
+// }
+//
+// func (p *Product) RemoveFromUnderReview(post Post) {
+// 	DB.Model(&p).Association("UnderReview").Delete(post)
+// }
+// func (p *Product) RemoveFromWorkingOn(post Post) {
+// 	DB.Model(&p).Association("WorkingOn").Delete(post)
+// }
+// func (p *Product) RemoveFromDone(post Post) {
+// 	DB.Model(&p).Association("Done").Delete(post)
+// }
+//
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.Name = strings.Trim(p.Name, " ")
 	tsv, err := createTSVector(p.Name, p.Description)

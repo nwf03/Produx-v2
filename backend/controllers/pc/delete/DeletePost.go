@@ -4,7 +4,7 @@ import (
 	"strings"
 	"tutorial/controllers/pc/mw"
 	"tutorial/db"
-
+  "fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -12,8 +12,8 @@ import (
 //var DB = controllers.DB
 
 func DeletePost(c *fiber.Ctx) error {
-	name := strings.TrimSpace(strings.ReplaceAll(c.Params("name"), "%20", " "))
-	field := strings.TrimSpace(strings.Title(strings.ToLower(c.Params("field"))))
+	productId := c.Params("productId")
+	field := strings.TrimSpace(strings.ToLower(c.Params("field")))
 	if !db.ValidType(field) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"status":  "error",
@@ -28,32 +28,22 @@ func DeletePost(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var product db.Product
-	db.DB.First(&product, "name = ?", name)
+  fmt.Println("producid: ", productId)
+	db.DB.First(&product, "id = ?", productId)
 	if product.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
 	}
 
 	var post db.DeletePost
 	switch field {
-	//case "Suggestions":
-	//	var suggestion db.Suggestion
-	//	db.DB.First(&suggestion, "id = ? and user_id = ?", postId, int64(id))
-	//	post = &suggestion
-	//case "Bugs":
-	//	var bug db.Bug
-	//	db.DB.First(&bug, "id = ? and user_id = ?", postId, int64(id))
-	//	post = &bug
-	//case "Announcements":
-	//	var announcement db.Announcement
-	//	db.DB.First(&announcement, "id = ? and user_id = ?", postId, int64(id))
-	//	post = &announcement
-	case "Changelogs":
+	case "changelogs":
 		var changelog db.Changelog
 		db.DB.First(&changelog, "id = ? and user_id = ?", postId, int64(id))
 		post = &changelog
 	default:
 		var p db.Post
-		db.DB.First(&p, "id = ? and user_id = ? and type=?", postId, int64(id), field)
+    query := fmt.Sprintf(`id = %s and user_id = %d and type && '{"%s"}'`, postId, uint(id), field)
+		db.DB.First(&p, query)
 		post = &p
 	}
 

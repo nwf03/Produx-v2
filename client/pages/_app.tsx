@@ -3,18 +3,22 @@ import type { AppProps } from "next/app";
 import { Provider } from "react-redux";
 import store from "../src/state/store";
 import Register from "../src/components/Registeration/Main";
+import {DndProvider} from "react-dnd";
 import {
   useGetUserInfoQuery,
 } from "../src/state/reducers/api";
+import {HTML5Backend} from "react-dnd-html5-backend";
 function MyApp({ Component, pageProps }: AppProps) {
   const Layout = Component.Layout || EmptyLayout;
   return (
     <Provider store={store}>
+      <DndProvider backend={HTML5Backend}>
       <DefaultLayout>
         <Layout>
           <Component {...pageProps} />
         </Layout>
       </DefaultLayout>
+      </DndProvider>
     </Provider>
   );
 }

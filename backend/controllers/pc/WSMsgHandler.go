@@ -34,7 +34,6 @@ type Message struct {
 type socketConnection struct {
 	conn *websocket.Conn
 	user MessageUser
-	index int
 	mu sync.Mutex
 }
 func (c *socketConnection) sendMessage(msg interface{}) error{
@@ -97,7 +96,6 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 	var connection = &socketConnection{
 		conn: ws,
 		user: user,
-		index: len(users[ws.Params("id")]),
 	}
 	users[ws.Params("id")] = append(users[ws.Params("id")], connection)
 	if _, ok := UserAccs[ws.Params("id")]; ok {
@@ -147,10 +145,13 @@ func makeMessage(conn *socketConnection, msgType messageType, msg string) *Messa
 }
 
 func HandleDisconnect(conn *socketConnection) {
-	// todo this code leads to slice out of range error when use disconnects 
-	// todo find another way to fix this
-	users[conn.conn.Params("id")] = append(users[conn.conn.Params("id")][:conn.index], users[conn.conn.Params("id")][conn.index+1:]...)
-	// delete(users[ws.Params("id")], &conn)
+  var updatedUsers []*socketConnection 
+  for _, user := range users[conn.conn.Params("id")]{
+        if user.conn != conn.conn {
+             updatedUsers = append(updatedUsers, user) 
+    }
+  }
+  users[conn.conn.Params("id")] = updatedUsers 
 	_, exists := UserAccs[conn.conn.Params("id")][conn.conn]
 	productId := conn.conn.Params("id")
 	if exists {

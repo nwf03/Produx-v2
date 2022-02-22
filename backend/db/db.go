@@ -2,10 +2,12 @@ package db
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"os"
 	"time"
+
+	"github.com/lib/pq"
+	"github.com/pkg/errors"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -28,7 +30,7 @@ func GetDB() *gorm.DB {
 	// err2 := DB.AutoMigrate(&User{}, &Product{}, &Suggestion{}, &Bug{},
 	// &Changelog{}, &Announcement{}, &ProductUser{}, &BugComment{},
 	// &SuggestionComment{}, &AnnouncementComment{}, &Message{})
-	err = DB.AutoMigrate(&User{}, &Product{}, &Post{}, &Comment{}, &Changelog{})
+	err = DB.AutoMigrate(&User{}, &Product{}, &Post{}, &Comment{}, &Changelog{}, &ProductUser{}, &Message{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,9 +120,9 @@ func createPostsQuery(lastId int64, productId int64, field string) string {
 	var query string
 	if field != "" {
 		if lastId == 0 {
-			query = fmt.Sprintf("product_id = %d and type = %s", productId, field)
+			query = fmt.Sprintf(`product_id = %d and type && '{"%s"}'`, productId, field)
 		} else {
-			query = fmt.Sprintf("product_id = %d and id < %d and type = %s", productId, lastId, field)
+			query = fmt.Sprintf(`product_id = %d and id < %d and type && '{"%s"}'`, productId, lastId, field)
 		}
 	} else {
 		if lastId == 0 {
@@ -134,7 +136,7 @@ func createPostsQuery(lastId int64, productId int64, field string) string {
 
 func (db *DBConn) GetOldestPost(productId int64, field string) Post {
 	var post Post
-	query := fmt.Sprintf("id = (SELECT MIN(id) FROM posts where product_id = %d) and product_id = %d and type = ? ", productId, productId, field)
+	query := fmt.Sprintf("id = (SELECT MIN(id) FROM posts where product_id = %d) and product_id = %d and type = '%s' ", productId, productId, field)
 	db.Find(&post, query)
 	return post
 }
@@ -156,9 +158,20 @@ func (db *DBConn) ProductFieldPostCount(productId int64, field string) (int64, e
 	}
 	switch field {
 	case "changelog":
-		db.Model(Changelog{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+		db.Model(&Changelog{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
 	default:
-		db.Model(Post{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
+		db.Model(&Post{}).Where("product_id = ? and created_at between ? and ? and type && ?", productId, dayStart, dayEnd, pq.StringArray{field}).Count(&count)
 	}
 	return count, nil
+}
+
+
+func (db *DBConn) GetPostWithType(t string) ([]Post, error){
+  if !ValidType(t){
+    return nil, errors.New("invalid type")
+  }
+
+  var posts []Post
+  db.DB.Model(&Post{}).Find(&posts,"type &&", t)
+  return posts, nil 
 }

@@ -2,40 +2,77 @@ package db
 
 import (
 	"errors"
+	"fmt"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
 type Post struct {
 	gorm.Model
-	ProductID     uint      `json:"productID"`
-	Product       Product   `json:"product"`
-	User          User      `json:"user"`
-	UserID        uint      `json:"userID"`
-	Title         string    `json:"title"`
-	Description   string    `json:"description"`
-	Likes         int64     `json:"likes" gorm:"default:0"`
-	Dislikes      int64     `json:"dislikes" gorm:"default:0"`
-	UserLikes     []User    `json:"userLikes" gorm:"many2many:liked_suggestions;"`
-	UserDislikes  []User    `json:"userDislikes" gorm:"many2many:disliked_suggestions;"`
-	Comments      []Comment `json:"comments"`
-	CommentsCount int64     `json:"commentsCount" gorm:"default:0"`
-	Type          string    `json:"type"`
+	ProductID     uint           `json:"productID"`
+	Product       Product        `json:"product"`
+	User          User           `json:"user"`
+	UserID        uint           `json:"userID"`
+	Title         string         `json:"title"`
+	Description   string         `json:"description"`
+	Likes         int64          `json:"likes" gorm:"default:0"`
+	Dislikes      int64          `json:"dislikes" gorm:"default:0"`
+	UserLikes     []User         `json:"userLikes" gorm:"many2many:liked_posts;"`
+	UserDislikes  []User         `json:"userDislikes" gorm:"many2many:disliked_posts;"`
+	Comments      []Comment      `json:"comments"`
+	CommentsCount int64          `json:"commentsCount" gorm:"default:0"`
+	Type          pq.StringArray `json:"type" gorm:"type:text[]"`
 }
 
 func ValidType(t string) bool {
+	fmt.Println("checking type t: ", t)
+	fmt.Println(len(t))
 	switch t {
-	case "suggestion", "bug", "announcement":
+	case "suggestions", "bugs", "announcements", "done", "working-on", "under-review":
 		return true
 	}
 	return false
 }
 
+func checkTypes(t []string) bool {
+	for _, s := range t {
+		if !ValidType(s) {
+			return false
+		}
+	}
+	return true
+}
+
 func (p *Post) BeforeCreate(db *gorm.DB) error {
-	if !ValidType(p.Type) {
-		return errors.New("type is required")
+	if !checkTypes(p.Type) {
+		return errors.New("invalid type")
 	}
 	return nil
+}
+
+func (p *Post) AddType(t string) error{
+  if !ValidType(t){
+    return errors.New("invalid type")
+  }
+  p.Type = append(p.Type, t)
+  DB.Save(&p)
+  return nil
+}
+func (p *Post) RemoveType(t string) error{
+  if !ValidType(t){
+    return errors.New("invalid type")
+  }
+  var newTypes pq.StringArray
+  for _, field := range p.Type{
+    if field != t {
+      newTypes = append(newTypes, field) 
+    } 
+  }
+  fmt.Println("new typesss: ", newTypes)
+  p.Type = newTypes
+  DB.Save(&p)
+  return nil
 }
 
 //type Bug struct {
@@ -86,7 +123,7 @@ type Changelog struct {
 }
 type Comment struct {
 	gorm.Model
-	PostID  uint   `json:"suggestionID"`
+	PostID  uint   `json:"postID"`
 	User    User   `json:"user"`
 	UserID  uint   `json:"userID"`
 	Comment string `json:"comment"`

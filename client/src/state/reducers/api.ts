@@ -33,7 +33,7 @@ const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Posts", "User", "Product", "Comments"],
+  tagTypes: ["Posts", "User", "Product", "Comments", "Stats"],
   endpoints: (builder) => ({
     getProducts: builder.query<
       ProductResponse | Product | ProductPostsResponse,
@@ -143,12 +143,39 @@ const api = createApi({
     }),
     getProductDayPostCount: builder.query<{bugs: number, announcements:number, changelogs:number, suggestions: number}, number>({
       query: (productId) => `products/dayStats/${productId}`,
+      providesTags: ["Stats"]
     }),
-    likePost: builder.mutation<void, {productId: number, postID: number, field:  string, like: boolean}>({
+    likePost: builder.mutation<void, {postID: number,  like: boolean}>({
       query: (data) => ({
-        url: `products/${data.like ? "like" : "dislike"}_post/${data.productId}/${data.field}/${data.postID}`,
+        url: `products/${data.like ? "like" : "dislike"}_post/${data.postID}`,
         method: "PUT",
       }),
+      invalidatesTags: ["Comments"]
+    }),
+    getPostsBoard: builder.query<Post[], {productId: number}>({
+      query: ({productId}) => `products/board/${productId}`,
+      providesTags: ["Posts"],
+    }),
+    addToPostsBoard: builder.mutation<void, {productId: number, postId: number, field:"working-on" | "done" | "under-review"}>({
+      query: ({productId, postId, field}) => ({
+        url: `products/board/${productId}/${field}/add/${postId}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["Comments", "Stats"]
+    }),
+    removeFromPostsBoard: builder.mutation<void, {productId: number, postId: number, field:"working-on" | "done" | "under-review"}>({
+      query: ({productId, postId, field}) => ({
+        url: `products/board/${productId}/${field}/remove/${postId}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["Comments", "Posts"]
+    }),
+    deletePost: builder.mutation<void, {productId: number, postId:number, field: string}>({
+      query: ({productId, postId, field}) => ({
+        url: `products/delete/post/${productId}/${field}/${postId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Posts"]
     })
   }),
 });
@@ -172,8 +199,13 @@ export const {
   useCreateCommentMutation,
   useGetPostDetailsQuery,
   useGetPostsQuery,
-    useLazyGetPostsQuery,
-    useLazyGetProductInfoQuery,
-    useGetProductDayPostCountQuery
+  useLazyGetPostsQuery,
+  useLazyGetProductInfoQuery,
+  useGetProductDayPostCountQuery,
+  useGetPostsBoardQuery,
+  useAddToPostsBoardMutation,
+  useRemoveFromPostsBoardMutation,
+  useDeletePostMutation,
+  useLikePostMutation
 } = api;
 export default api;

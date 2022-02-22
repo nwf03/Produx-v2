@@ -14,15 +14,19 @@ func ProductDayStats(c *fiber.Ctx) error {
 			"error": "product id must be an integer",
 		})
 	}
-	bugCount, err := db.DB.ProductFieldPostCount(productIdInt, "bug")
-	suggestionCount, err := db.DB.ProductFieldPostCount(productIdInt, "suggestion")
-	announcementCount, err := db.DB.ProductFieldPostCount(productIdInt, "announcement")
-	changelogsCount, err := db.DB.ProductFieldPostCount(productIdInt, "changelog")
+	bugCount, err := db.DB.ProductFieldPostCount(productIdInt, "bugs")
+	suggestionCount, err := db.DB.ProductFieldPostCount(productIdInt, "suggestions")
+	announcementCount, err := db.DB.ProductFieldPostCount(productIdInt, "announcements")
+	underReviewCount, err := db.DB.ProductFieldPostCount(productIdInt, "under-review")
+	workingOnCount, err := db.DB.ProductFieldPostCount(productIdInt, "working-on")
+	doneCount, err := db.DB.ProductFieldPostCount(productIdInt, "done")
 	return c.JSON(fiber.Map{
 		"bugs":          bugCount,
 		"announcements": announcementCount,
-		"changelogs":    changelogsCount,
 		"suggestions":   suggestionCount,
+		"underReview":   underReviewCount,
+		"workingOn":     workingOnCount,
+		"done":          doneCount,
 	})
 
 }

@@ -27,10 +27,13 @@ func Products(app *fiber.App) {
 	products.Get("product/:product_name", get.GetProduct)
 	products.Get("/latest_posts/:field", get.LatestProductPosts)
 	products.Get("/dayStats/:productId", get.ProductDayStats)
-	products.Get("test", get.GetLatestPosts)
+  products.Get("board/:productId", get.GetFromPostsBoard)
 
-	products.Put("like_post/:productId/:field/:postId", patch.LikePost)
-	products.Put("dislike_post/:productId/:field/:postId", patch.DislikePost)
+  products.Put("board/:productId/:field/add/:postId", patch.AddPostToBoard)
+  products.Put("board/:productId/:field/remove/:postId", patch.RemovePostFromBoard)
+	products.Put("like_post/:postId", patch.LikePost)
+	products.Put("dislike_post/:postId", patch.DislikePost)
+  
 	products.Post("/create", post.CreateProduct)
 	products.Post("verify/:name", post.VerifyProduct)
 	products.Post("/follow/:product_name", post.FollowProduct)
@@ -43,7 +46,7 @@ func Products(app *fiber.App) {
 	products.Post("create/post/:name/:field", post.CreatePost)
 	products.Patch("update/post/:name/:field/:post_id", patch.UpdatePost)
 
-	products.Delete("delete/post/:name/:field/:post_id", delete.DeletePost)
+	products.Delete("delete/post/:productId/:field/:post_id", delete.DeletePost)
 	products.Delete("delete/product/:id", delete.DeleteProduct)
 	products.Patch("update/role/:product_id/:user_id", patch.UpdateUserRole)
 

@@ -8,10 +8,11 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/lib/pq"
 )
 
 func LatestProductPosts(c *fiber.Ctx) error {
-	field := strings.TrimSpace(strings.Title(strings.ToLower(c.Params("field"))))
+	field := strings.TrimSpace(strings.ToLower(c.Params("field")))
 	if !mw.ValidFields(field) {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
 	}
@@ -33,7 +34,7 @@ func LatestProductPosts(c *fiber.Ctx) error {
 	for _, product := range User.FollowedProducts {
 		productIds = append(productIds, product.ID)
 	}
-	if !db.ValidType(field) {
+	if !(field == "changelogs") && !db.ValidType(field) {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
 	}
 	switch field {
@@ -51,7 +52,7 @@ func LatestProductPosts(c *fiber.Ctx) error {
 		return c.JSON(Changelogs)
 	default:
 		var posts []db.Post
-		db.DB.Preload("Product").Preload("User").Where("product_id IN (?) and type = ?", productIds, field).Order("created_at desc").Find(&posts)
+		db.DB.Preload("Product").Preload("User").Where("product_id IN (?) and  type && ?", productIds, pq.StringArray{field}).Order("created_at desc").Find(&posts)
 		return c.JSON(posts)
 
 		//case "Announcements":

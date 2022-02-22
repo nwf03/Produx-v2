@@ -50,7 +50,7 @@ export interface Post {
   commentsCount?: number;
   likes: number;
   dislikes: number;
-  comments?: []Comments;
+  comments?: Comment[];
 }
 
 
@@ -106,7 +106,4 @@ export type ProductUser = Pick<User, "name" | "pfp"> & {
   id: number;
 };
 
-
-
-
-
+export type PostTags = "done" | "working-on" | "under-review"

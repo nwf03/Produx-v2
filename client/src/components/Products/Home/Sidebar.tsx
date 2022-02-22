@@ -13,9 +13,13 @@ import { setUser } from "../../../state/reducers/auth";
 export default function Sidebar({
   product,
   channel,
+    userCount,
+   postCount
 }: {
   product: Product;
   channel: string;
+  userCount: number;
+  postCount: number;
 }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -107,18 +111,14 @@ export default function Sidebar({
             {product.description}
           </p>
         </div>
-        <div className="hidden md:grid grid-cols-3 gap-2 lg:gap-4 mt-6 m-2 text-center place-items-center">
+        <div className="hidden md:grid grid-cols-2 gap-0 lg:gap-4 mt-6 m-2 text-center place-items-center">
           <div className={"block lg:inline-flex gap-2"}>
             <p>🌎</p>
-            <p>100k</p>
+            <p>{userCount}</p>
           </div>
           <div className={"block lg:inline-flex gap-2"}>
             <p>💬</p>
-            <p>100k</p>
-          </div>
-          <div className={"block lg:inline-flex gap-2"}>
-            <p>🗣</p>
-            <p>100k</p>
+            <p>{postCount}</p>
           </div>
         </div>
         <div className="mt-5">

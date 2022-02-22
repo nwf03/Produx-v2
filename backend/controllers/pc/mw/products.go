@@ -3,10 +3,10 @@ package mw
 func ValidFields(field string) bool {
 	switch field {
 	case
-		"Suggestions",
-		"Bugs",
-		"Changelogs",
-		"Announcements":
+		"suggestions",
+		"bugs",
+		"changelogs",
+		"announcements":
 		return true
 	}
 	return false

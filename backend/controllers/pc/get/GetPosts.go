@@ -1,6 +1,7 @@
 package get
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"tutorial/db"
@@ -36,7 +37,7 @@ func GetPosts(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": "productId must be a number"})
 	}
-	if !db.ValidType(field) {
+	if !(field == "changelogs") && !db.ValidType(field) {
 		return c.JSON(fiber.Map{"message": "invalid post type"})
 	}
 	switch field {
@@ -77,6 +78,7 @@ func GetPosts(c *fiber.Ctx) error {
 
 	default:
 		posts, err := db.DB.GetPosts(field, productIdInt, afterIdInt, true)
+		fmt.Println("error while getting posts: ", err)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"message": "error"})
 		}
