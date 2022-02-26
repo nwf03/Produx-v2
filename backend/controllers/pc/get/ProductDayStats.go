@@ -1,13 +1,14 @@
 package get
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"tutorial/db"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func ProductDayStats(c *fiber.Ctx) error {
-	//convert string to uint
+	// convert string to uint
 	productIdInt, err := strconv.ParseInt(c.Params("productId"), 10, 32)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -28,5 +29,4 @@ func ProductDayStats(c *fiber.Ctx) error {
 		"workingOn":     workingOnCount,
 		"done":          doneCount,
 	})
-
 }

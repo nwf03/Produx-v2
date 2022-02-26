@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-//var DB = controllers.DB
+// var DB = controllers.DB
 
 func UpdateProduct(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)

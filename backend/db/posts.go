@@ -51,28 +51,29 @@ func (p *Post) BeforeCreate(db *gorm.DB) error {
 	return nil
 }
 
-func (p *Post) AddType(t string) error{
-  if !ValidType(t){
-    return errors.New("invalid type")
-  }
-  p.Type = append(p.Type, t)
-  DB.Save(&p)
-  return nil
+func (p *Post) AddType(t string) error {
+	if !ValidType(t) {
+		return errors.New("invalid type")
+	}
+	p.Type = append(p.Type, t)
+	DB.Save(&p)
+	return nil
 }
-func (p *Post) RemoveType(t string) error{
-  if !ValidType(t){
-    return errors.New("invalid type")
-  }
-  var newTypes pq.StringArray
-  for _, field := range p.Type{
-    if field != t {
-      newTypes = append(newTypes, field) 
-    } 
-  }
-  fmt.Println("new typesss: ", newTypes)
-  p.Type = newTypes
-  DB.Save(&p)
-  return nil
+
+func (p *Post) RemoveType(t string) error {
+	if !ValidType(t) {
+		return errors.New("invalid type")
+	}
+	var newTypes pq.StringArray
+	for _, field := range p.Type {
+		if field != t {
+			newTypes = append(newTypes, field)
+		}
+	}
+	fmt.Println("new typesss: ", newTypes)
+	p.Type = newTypes
+	DB.Save(&p)
+	return nil
 }
 
 //type Bug struct {
@@ -121,6 +122,7 @@ type Changelog struct {
 	UserLikes    []User  `json:"userLikes" gorm:"many2many:liked_changelogs;"`
 	UserDislikes []User  `json:"userDislikes" gorm:"many2many:disliked_changelogs;"`
 }
+
 type Comment struct {
 	gorm.Model
 	PostID  uint   `json:"postID"`
@@ -155,9 +157,11 @@ type Poster interface {
 	Update(title, description string)
 	AddComment(comment string, userID uint)
 }
+
 type IDGetter interface {
 	GetID() uint
 }
+
 type PostLiker interface {
 	Like(user User) error
 	Dislike(user User) error
@@ -193,6 +197,7 @@ type AdminPost interface {
 	Update(title, description, version string)
 	GetID() uint
 }
+
 type DeletePost interface {
 	Delete()
 	GetID() uint
@@ -262,6 +267,7 @@ func (p *Post) Delete() {
 func (chlog *Changelog) Delete() {
 	DB.Delete(&chlog)
 }
+
 func (p *Post) GetID() uint {
 	return p.ID
 }
@@ -282,6 +288,7 @@ func (p *Post) GetID() uint {
 func (chlog *Changelog) GetID() uint {
 	return chlog.ID
 }
+
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
 	var post Post
 	err := DB.First(&post, c.PostID).Error
@@ -317,6 +324,7 @@ func (p *Post) Like(user User) error {
 	}
 	return nil
 }
+
 func (p *Post) Dislike(user User) error {
 	err := p.RemoveLike(user)
 	if err != nil {
@@ -330,6 +338,7 @@ func (p *Post) Dislike(user User) error {
 	}
 	return nil
 }
+
 func (p *Post) RemoveLike(user User) error {
 	err := DB.Model(&p).Association("UserLikes").Delete(&user)
 	DB.Table("liked_posts").Where("post_id = ? AND user_id = ?", p.ID, user.ID).Count(&p.Likes)
@@ -446,6 +455,7 @@ func (chlog *Changelog) Like(user User) error {
 	}
 	return nil
 }
+
 func (chlog *Changelog) Dislike(user User) error {
 	err := chlog.RemoveLike(user)
 	if err != nil {
@@ -458,6 +468,7 @@ func (chlog *Changelog) Dislike(user User) error {
 	}
 	return nil
 }
+
 func (chlog *Changelog) RemoveLike(user User) error {
 	err := DB.Model(&chlog).Association("UserLikes").Delete(&user)
 	DB.Table("liked_changelogs").Where("changelog_id = ? AND user_id = ?", chlog.ID, user.ID).Count(&chlog.Likes)

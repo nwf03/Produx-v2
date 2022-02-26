@@ -2,9 +2,10 @@ package delete
 
 import (
 	"fmt"
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"tutorial/db"
 )
 
 func DeleteProduct(c *fiber.Ctx) error {

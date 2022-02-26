@@ -10,8 +10,8 @@ const store = configureStore({
     auth: authReducer,
     [api.reducerPath]: api.reducer,
     channel: channelReducer,
-    newProduct:createProductReducer,
-    product: productReducer
+    newProduct: createProductReducer,
+    product: productReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),

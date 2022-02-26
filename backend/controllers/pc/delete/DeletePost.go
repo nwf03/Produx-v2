@@ -1,15 +1,16 @@
 package delete
 
 import (
+	"fmt"
 	"strings"
 	"tutorial/controllers/pc/mw"
 	"tutorial/db"
-  "fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-//var DB = controllers.DB
+// var DB = controllers.DB
 
 func DeletePost(c *fiber.Ctx) error {
 	productId := c.Params("productId")
@@ -28,7 +29,7 @@ func DeletePost(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var product db.Product
-  fmt.Println("producid: ", productId)
+	fmt.Println("producid: ", productId)
 	db.DB.First(&product, "id = ?", productId)
 	if product.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
@@ -42,7 +43,7 @@ func DeletePost(c *fiber.Ctx) error {
 		post = &changelog
 	default:
 		var p db.Post
-    query := fmt.Sprintf(`id = %s and user_id = %d and type && '{"%s"}'`, postId, uint(id), field)
+		query := fmt.Sprintf(`id = %s and user_id = %d and type && '{"%s"}'`, postId, uint(id), field)
 		db.DB.First(&p, query)
 		post = &p
 	}

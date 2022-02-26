@@ -15,9 +15,10 @@ type Post struct {
 	Description string `json:"description"`
 	User        User   `json:"user"`
 	UserId      uint   `json:"userID"`
-	//UserID    int `json:"user_id"`
-	//ProductID int `json:"product_id"`
+	// UserID    int `json:"user_id"`
+	// ProductID int `json:"product_id"`
 }
+
 type User struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
@@ -41,7 +42,7 @@ func GetPosts(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "invalid post type"})
 	}
 	switch field {
-	//case "suggestions":
+	// case "suggestions":
 	//	suggestions, err := db.DB.GetSuggestions(productIdInt, afterIdInt, true)
 	//	if err != nil {
 	//		return c.Status(500).JSON(fiber.Map{"message": "error"})
@@ -52,7 +53,7 @@ func GetPosts(c *fiber.Ctx) error {
 	//	lastId := suggestions[len(suggestions)-1].GetID()
 	//	oldestSug := db.DB.GetOldestSuggestions(productIdInt)
 	//	return c.JSON(fiber.Map{"lastId": lastId, "posts": suggestions, "hasMore": oldestSug.ID != lastId})
-	//case "bugs":
+	// case "bugs":
 	//	bugs, err := db.DB.GetBugs(productIdInt, afterIdInt, true)
 	//	if err != nil {
 	//		fmt.Println(err)
@@ -86,7 +87,7 @@ func GetPosts(c *fiber.Ctx) error {
 			return c.Status(404).JSON(fiber.Map{"message": "no posts"})
 		}
 		return c.JSON(fiber.Map{"lastId": posts[0].GetID(), "posts": posts})
-		//case "announcements":
+		// case "announcements":
 		//	announcements, err := db.DB.GetAnnouncements(productIdInt, afterIdInt, true)
 		//	if err != nil {
 		//		return c.Status(500).JSON(fiber.Map{"message": "error"})
@@ -97,5 +98,4 @@ func GetPosts(c *fiber.Ctx) error {
 		//	return c.JSON(fiber.Map{"lastId": announcements[0].GetID(), "posts": announcements})
 
 	}
-
 }

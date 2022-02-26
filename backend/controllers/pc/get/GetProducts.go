@@ -3,12 +3,13 @@ package get
 import (
 	"database/sql"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"log"
 	"strconv"
 	"strings"
 	"tutorial/controllers/pc/mw"
 	"tutorial/db"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type ProductUsersInfo struct {

@@ -7,8 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-//var DB = controllers.DB
-
+// var DB = controllers.DB
 
 func GetUserProducts(c *fiber.Ctx) error {
 	name := c.Params("name")

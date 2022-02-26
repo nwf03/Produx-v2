@@ -17,9 +17,9 @@ type Product struct {
 	Users       []User `json:"users,omitempty" gorm:"many2many:followed_products;"`
 	Description string `json:"description,omitempty"`
 	Posts       []Post `json:"posts,omitempty"`
-	//Suggestions   []Suggestion   `json:"suggestions,omitempty"`
-	//Bugs          []Bug          `json:"bugs,omitempty"`
-	//Announcements []Announcement `json:"announcements,omitempty"`
+	// Suggestions   []Suggestion   `json:"suggestions,omitempty"`
+	// Bugs          []Bug          `json:"bugs,omitempty"`
+	// Announcements []Announcement `json:"announcements,omitempty"`
 	Changelogs  []Changelog    `json:"changeLogs,omitempty"`
 	Images      pq.StringArray `json:"images" gorm:"type:text[]"`
 	UserLikes   []User         `json:"user_likes" gorm:"many2many:likes;"`
@@ -27,7 +27,7 @@ type Product struct {
 	Verified    bool           `json:"verified" gorm:"default:false"`
 	Private     bool           `json:"private" gorm:"default:false"`
 	AccessToken string         `json:"accessToken" gorm:"default:''"`
-  TSV         string         `gorm:"index:tsv_index;type:tsvector" json:"-"`
+	TSV         string         `gorm:"index:tsv_index;type:tsvector" json:"-"`
 	Messages    []Message      `json:"messages"`
 	// UnderReview []Post         `json:"underReview"`
 	// WorkingOn   []Post         `json:"workingOn"`
@@ -63,6 +63,7 @@ func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.TSV = tsv
 	return nil
 }
+
 func (p *Product) BeforeUpdate(tx *gorm.DB) error {
 	p.Name = strings.Trim(p.Name, " ")
 	tsv, err := createTSVector(p.Name, p.Description)
@@ -72,10 +73,10 @@ func (p *Product) BeforeUpdate(tx *gorm.DB) error {
 	p.TSV = tsv
 	return nil
 }
+
 func createTSVector(name, description string) (string, error) {
 	query := fmt.Sprintf("select setweight(to_tsvector('english', '%s'), 'A') || setweight(to_tsvector('english', '%s'), 'B')", name, description)
 	rows, err := DB.Raw(query).Rows()
-
 	if err != nil {
 		return "", err
 	}

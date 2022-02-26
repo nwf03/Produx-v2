@@ -165,13 +165,12 @@ func (db *DBConn) ProductFieldPostCount(productId int64, field string) (int64, e
 	return count, nil
 }
 
+func (db *DBConn) GetPostWithType(t string) ([]Post, error) {
+	if !ValidType(t) {
+		return nil, errors.New("invalid type")
+	}
 
-func (db *DBConn) GetPostWithType(t string) ([]Post, error){
-  if !ValidType(t){
-    return nil, errors.New("invalid type")
-  }
-
-  var posts []Post
-  db.DB.Model(&Post{}).Find(&posts,"type &&", t)
-  return posts, nil 
+	var posts []Post
+	db.DB.Model(&Post{}).Find(&posts, "type &&", t)
+	return posts, nil
 }

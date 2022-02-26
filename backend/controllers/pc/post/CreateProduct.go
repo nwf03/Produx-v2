@@ -11,7 +11,6 @@ import (
 
 var url = "http://localhost:8000/"
 
-
 func CreateProduct(c *fiber.Ctx) error {
 	product := new(db.Product)
 	if err := c.BodyParser(product); err != nil {
