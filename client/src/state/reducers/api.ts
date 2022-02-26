@@ -1,5 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { NewProduct, Product, ProductUser, User, Post, UserInfo } from "../interfaces";
+import {
+  NewProduct,
+  Product,
+  ProductUser,
+  User,
+  Post,
+  UserInfo,
+} from "../interfaces";
 import { RootState } from "../store";
 import { ProductPostsResponse } from "../interfaces";
 import { number } from "prop-types";
@@ -93,7 +100,7 @@ const api = createApi({
       }),
       invalidatesTags: ["User"],
     }),
-    createProduct: builder.mutation<{message:string}, NewProduct>({
+    createProduct: builder.mutation<{ message: string }, NewProduct>({
       query: (product) => ({
         url: "products/create",
         method: "POST",
@@ -118,65 +125,99 @@ const api = createApi({
       }),
       invalidatesTags: ["User"],
     }),
-    checkIfProductFollowed: builder.query<{followed:boolean
-    }, number>({
+    checkIfProductFollowed: builder.query<{ followed: boolean }, number>({
       query: (productId) => `products/isFollowed/${productId}`,
     }),
-    getPostDetails: builder.query<Post, {postId: string,channel:string}>({
-      query: ({postId, channel}) => `products/comments/${channel}/${postId}`,
-      providesTags: ["Comments"]
+    getPostDetails: builder.query<Post, { postId: string; channel: string }>({
+      query: ({ postId, channel }) => `products/comments/${channel}/${postId}`,
+      providesTags: ["Comments"],
     }),
-  createComment: builder.mutation<Post, {field: string, postId: number, comment:string}>({
-   query: (data) => ({
-     url : "products/create/comment",
-     method: "POST",
-     body: data
-   }),
-    invalidatesTags: ["Comments"]
-  }),
-    getPosts: builder.query<{posts: Post[], lastId: number}, {lastId?: number, productId: number, channel: string}>({
-      query: ({lastId, productId, channel}) => `products/posts/${productId}/${channel}/${lastId || 0}`,
+    createComment: builder.mutation<
+      Post,
+      { field: string; postId: number; comment: string }
+    >({
+      query: (data) => ({
+        url: "products/create/comment",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Comments"],
+    }),
+    getPosts: builder.query<
+      { posts: Post[]; lastId: number },
+      { lastId?: number; productId: number; channel: string }
+    >({
+      query: ({ lastId, productId, channel }) =>
+        `products/posts/${productId}/${channel}/${lastId || 0}`,
       providesTags: ["Posts"],
     }),
-    getProductInfo: builder.query<{product: Product, users: ProductUser[]}, string>({
+    getProductInfo: builder.query<
+      { product: Product; users: ProductUser[] },
+      string
+    >({
       query: (productId) => `products/product/${productId}`,
     }),
-    getProductDayPostCount: builder.query<{bugs: number, announcements:number, changelogs:number, suggestions: number}, number>({
+    getProductDayPostCount: builder.query<
+      {
+        bugs: number;
+        announcements: number;
+        changelogs: number;
+        suggestions: number;
+      },
+      number
+    >({
       query: (productId) => `products/dayStats/${productId}`,
-      providesTags: ["Stats"]
+      providesTags: ["Stats"],
     }),
-    likePost: builder.mutation<void, {postID: number,  like: boolean}>({
+    likePost: builder.mutation<void, { postID: number; like: boolean }>({
       query: (data) => ({
         url: `products/${data.like ? "like" : "dislike"}_post/${data.postID}`,
         method: "PUT",
       }),
-      invalidatesTags: ["Comments"]
+      invalidatesTags: ["Comments"],
     }),
-    getPostsBoard: builder.query<Post[], {productId: number}>({
-      query: ({productId}) => `products/board/${productId}`,
+    getPostsBoard: builder.query<Post[], { productId: number }>({
+      query: ({ productId }) => `products/board/${productId}`,
       providesTags: ["Posts"],
     }),
-    addToPostsBoard: builder.mutation<void, {productId: number, postId: number, field:"working-on" | "done" | "under-review"}>({
-      query: ({productId, postId, field}) => ({
+    addToPostsBoard: builder.mutation<
+      void,
+      {
+        productId: number;
+        postId: number;
+        field: "working-on" | "done" | "under-review";
+      }
+    >({
+      query: ({ productId, postId, field }) => ({
         url: `products/board/${productId}/${field}/add/${postId}`,
         method: "PUT",
       }),
-      invalidatesTags: ["Comments", "Stats"]
+      invalidatesTags: ["Comments", "Stats"],
     }),
-    removeFromPostsBoard: builder.mutation<void, {productId: number, postId: number, field:"working-on" | "done" | "under-review"}>({
-      query: ({productId, postId, field}) => ({
+    removeFromPostsBoard: builder.mutation<
+      void,
+      {
+        productId: number;
+        postId: number;
+        field: "working-on" | "done" | "under-review";
+      }
+    >({
+      query: ({ productId, postId, field }) => ({
         url: `products/board/${productId}/${field}/remove/${postId}`,
         method: "PUT",
       }),
-      invalidatesTags: ["Comments", "Posts"]
+      invalidatesTags: ["Comments", "Posts"],
     }),
-    deletePost: builder.mutation<void, {productId: number, postId:number, field: string}>({
-      query: ({productId, postId, field}) => ({
+    deletePost: builder.mutation<
+      void,
+      { productId: number; postId: number; field: string }
+    >({
+      query: ({ productId, postId, field }) => ({
         url: `products/delete/post/${productId}/${field}/${postId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Posts"]
-    })
+      invalidatesTags: ["Posts"],
+    }),
   }),
 });
 
@@ -206,6 +247,6 @@ export const {
   useAddToPostsBoardMutation,
   useRemoveFromPostsBoardMutation,
   useDeletePostMutation,
-  useLikePostMutation
+  useLikePostMutation,
 } = api;
 export default api;

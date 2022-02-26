@@ -1,9 +1,10 @@
 package patch
 
 import (
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"tutorial/db"
 )
 
 func DislikePost(c *fiber.Ctx) error {
@@ -13,9 +14,9 @@ func DislikePost(c *fiber.Ctx) error {
 	userId := claims["id"].(float64)
 	var User db.User
 	db.DB.Where("id = ?", userId).Find(&User)
-  post := new(db.Post)
- 
-	db.DB.First(&post, "id = ?", postId )
+	post := new(db.Post)
+
+	db.DB.First(&post, "id = ?", postId)
 	err := post.Dislike(User)
 	if err != nil {
 		return c.Status(500).JSON(err)

@@ -2,10 +2,11 @@ package get
 
 import (
 	"errors"
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
-	"tutorial/db"
 )
 
 func IsProductFollowed(c *fiber.Ctx) error {
@@ -14,7 +15,7 @@ func IsProductFollowed(c *fiber.Ctx) error {
 	userID := claims["id"].(float64)
 	var User db.ProductUser
 	productId := c.Params("product_id")
-	//convert product id to uint64
+	// convert product id to uint64
 	var Product db.Product
 	if err := db.DB.Select("user_id").Where("id = ?", productId).First(&Product).Error; err != nil {
 		return c.Status(500).JSON(err)
@@ -29,5 +30,4 @@ func IsProductFollowed(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{"followed": false})
 	}
 	return c.Status(200).JSON(fiber.Map{"followed": true})
-
 }

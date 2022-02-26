@@ -31,10 +31,10 @@ export interface Comment {
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: string | null;
-//  add bug id or suggestions id
+  //  add bug id or suggestions id
   user: User;
   userID: number;
-  comment: string
+  comment: string;
 }
 export interface Post {
   ID: number;
@@ -52,7 +52,6 @@ export interface Post {
   dislikes: number;
   comments?: Comment[];
 }
-
 
 export interface UserInfo {
   ID: number;
@@ -89,7 +88,7 @@ const b1: ChannelInfo = {
 
 export interface ProductPostsResponse {
   posts: Post[];
-  lastId: number
+  lastId: number;
 }
 
 type images = { images: File[] | null };
@@ -106,4 +105,4 @@ export type ProductUser = Pick<User, "name" | "pfp"> & {
   id: number;
 };
 
-export type PostTags = "done" | "working-on" | "under-review"
+export type PostTags = "done" | "working-on" | "under-review";

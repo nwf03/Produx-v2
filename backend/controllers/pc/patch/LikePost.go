@@ -14,9 +14,9 @@ func LikePost(c *fiber.Ctx) error {
 	userId := claims["id"].(float64)
 	var User db.User
 	db.DB.Where("id = ?", userId).Find(&User)
-  post := new(db.Post)
- 
-	db.DB.First(&post, "id = ?", postId )
+	post := new(db.Post)
+
+	db.DB.First(&post, "id = ?", postId)
 	err := post.Like(User)
 	if err != nil {
 		return c.Status(500).JSON(err)

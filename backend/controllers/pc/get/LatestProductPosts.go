@@ -38,11 +38,11 @@ func LatestProductPosts(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
 	}
 	switch field {
-	//case "Suggestions":
+	// case "Suggestions":
 	//	var Suggestions []db.Suggestion
 	//	db.DB.Preload("Product").Preload("User").Where("product_id IN (?)", productIds).Order("created_at desc").Find(&Suggestions)
 	//	return c.JSON(Suggestions)
-	//case "Bugs":
+	// case "Bugs":
 	//	var Bugs []db.Bug
 	//	db.DB.Preload("Product").Preload("User").Where("product_id IN (?)", productIds).Order("created_at desc").Find(&Bugs)
 	//	return c.JSON(Bugs)
@@ -55,11 +55,10 @@ func LatestProductPosts(c *fiber.Ctx) error {
 		db.DB.Preload("Product").Preload("User").Where("product_id IN (?) and  type && ?", productIds, pq.StringArray{field}).Order("created_at desc").Find(&posts)
 		return c.JSON(posts)
 
-		//case "Announcements":
+		// case "Announcements":
 		//	var Announcements []db.Announcement
 		//	db.DB.Preload("Product").Preload("User").Where("product_id IN (?)", productIds).Order("created_at desc").Find(&Announcements)
 		//	return c.JSON(Announcements)
 
 	}
-
 }

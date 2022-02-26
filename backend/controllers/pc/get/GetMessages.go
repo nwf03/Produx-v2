@@ -1,8 +1,9 @@
 package get
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"tutorial/db"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func GetMessages(c *fiber.Ctx) error {

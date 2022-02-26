@@ -22,7 +22,7 @@ func DislikeProduct(c *fiber.Ctx) error {
 			"message": "Product not found",
 		})
 	}
-	//add one to to product Likes
+	// add one to to product Likes
 	err := db.DB.Model(&User).Association("LikedProducts").Delete(&Product)
 	if err != nil {
 		return err
@@ -34,5 +34,4 @@ func DislikeProduct(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Product Unliked",
 	})
-
 }

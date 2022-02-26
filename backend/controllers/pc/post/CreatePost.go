@@ -54,7 +54,7 @@ func CreatePost(c *fiber.Ctx) error {
 
 	newField.UserID = uint(id)
 	newField.ProductID = product.ID
-	newField.Type = pq.StringArray{field} 
+	newField.Type = pq.StringArray{field}
 	db.DB.Create(newField)
 	return c.Status(200).JSON(newField)
 }

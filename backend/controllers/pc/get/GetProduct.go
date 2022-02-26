@@ -1,5 +1,5 @@
-
 package get
+
 import (
 	"database/sql"
 	"errors"
@@ -42,16 +42,15 @@ func GetProduct(c *fiber.Ctx) error {
 		}
 		Users = append(Users, PUser)
 	}
-  var UsersCount int64
-  db.DB.Table("product_users").Where("product_id = ?", product.ID).Count(&UsersCount)
-  var PostsCount int64
-  db.DB.Model(db.Post{}).Where("product_id = ?", product.ID).Count(&PostsCount)
+	var UsersCount int64
+	db.DB.Table("product_users").Where("product_id = ?", product.ID).Count(&UsersCount)
+	var PostsCount int64
+	db.DB.Model(db.Post{}).Where("product_id = ?", product.ID).Count(&PostsCount)
 	return c.JSON(fiber.Map{
-		"product": product,
-		"users":   Users,
-		"owner":   isOwner,
-    "usersCount": UsersCount,
-    "postsCount": PostsCount,
+		"product":    product,
+		"users":      Users,
+		"owner":      isOwner,
+		"usersCount": UsersCount,
+		"postsCount": PostsCount,
 	})
-
 }

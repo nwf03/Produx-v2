@@ -8,7 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-
 func UnfollowProduct(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -39,6 +38,3 @@ func UnfollowProduct(c *fiber.Ctx) error {
 		"message": "Product unfollowed",
 	})
 }
-
-
-
