@@ -1,0 +1,23 @@
+version = 1
+
+[[analyzers]]
+name = "go"
+enabled = true
+
+  [analyzers.meta]
+  import_root = "github.com/nwf03/produx"
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  plugins = ["react"]
+
+[[transformers]]
+name = "prettier"
+enabled = true
+
+[[transformers]]
+name = "gofumpt"
+enabled = true
