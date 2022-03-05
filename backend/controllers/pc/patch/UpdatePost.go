@@ -32,25 +32,12 @@ func UpdatePost(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
 	}
 
-	switch field {
-	case "Changelogs":
-		var post db.Changelog
-		db.DB.First(post, "id = ? and user_id = ?", postId, id)
-		if post.GetID() == 0 {
-			return c.Status(404).JSON(fiber.Map{"message": "Post not found"})
-		}
-		post.Update(newTitle, newDescription, newVersion)
-		return c.JSON(post)
-	case "suggestion":
-	case "announcement":
-	case "bug":
-		var post db.Post
-		db.DB.First(post, "id = ? and user_id = ? and type=?", postId, int64(id), field)
-		if post.GetID() == 0 {
-			return c.Status(404).JSON(fiber.Map{"message": "Post not found"})
-		}
-		post.Update(newTitle, newDescription)
-		return c.JSON(post)
+	var post db.Post
+	db.DB.First(post, "id = ? and user_id = ? and type=?", postId, int64(id), field)
+	if post.GetID() == 0 {
+		return c.Status(404).JSON(fiber.Map{"message": "Post not found"})
 	}
-	return c.Status(404).JSON(fiber.Map{"message": "field not found"})
+	post.Update(newTitle, newDescription)
+	return c.JSON(post)
+	// }
 }

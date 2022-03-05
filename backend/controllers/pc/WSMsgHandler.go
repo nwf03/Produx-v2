@@ -25,18 +25,19 @@ type MessageUser struct {
 	Pfp      string `json:"pfp"`
 }
 type Message struct {
-	User     MessageUser `json:"user"`
-	Message  string      `json:"message"`
-	Type     messageType `json:"type"`
-	ProductId	string 	`json:"productId"`
-	DateSent string   `json:"dateSent"`
+	User      MessageUser `json:"user"`
+	Message   string      `json:"message"`
+	Type      messageType `json:"type"`
+	ProductId string      `json:"productId"`
+	CreatedAt string      `json:"CreatedAt"`
 }
 type socketConnection struct {
 	conn *websocket.Conn
 	user MessageUser
-	mu sync.Mutex
+	mu   sync.Mutex
 }
-func (c *socketConnection) sendMessage(msg interface{}) error{
+
+func (c *socketConnection) sendMessage(msg interface{}) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	fmt.Println("sendin message.....")
@@ -58,8 +59,8 @@ var UserAccs = make(map[string]map[*websocket.Conn]*socketConnection)
 
 var ctx = context.Background()
 var publisher = redis.NewClient(&redis.Options{
-	Addr:     os.Getenv("REDIS_HOST")+":6379", // use default Addr
-	Password: "",               // no password set
+	Addr:     os.Getenv("REDIS_HOST") + ":6379", // use default Addr
+	Password: "",                                // no password set
 	DB:       0,
 })
 
@@ -99,10 +100,10 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 	}
 	users[ws.Params("id")] = append(users[ws.Params("id")], connection)
 	if _, ok := UserAccs[ws.Params("id")]; ok {
-		UserAccs[ws.Params("id")][ws] = connection 
+		UserAccs[ws.Params("id")][ws] = connection
 	} else {
 		UserAccs[ws.Params("id")] = make(map[*websocket.Conn]*socketConnection)
-		UserAccs[ws.Params("id")][ws] = connection 
+		UserAccs[ws.Params("id")][ws] = connection
 	}
 	SendUsersList(ws.Params("id"))
 }
@@ -124,10 +125,10 @@ func publishMessage(conn *socketConnection, msg string) {
 	}
 	if err := publisher.Publish(ctx, "messages", finalMsg).Err(); err != nil {
 		panic(err)
-	} 
+	}
 }
 func SendMessage(msg Message) {
-	for _,client := range users[msg.ProductId] {
+	for _, client := range users[msg.ProductId] {
 		err := client.sendMessage(msg)
 		if err != nil {
 			panic(err)
@@ -136,26 +137,26 @@ func SendMessage(msg Message) {
 }
 func makeMessage(conn *socketConnection, msgType messageType, msg string) *Message {
 	return &Message{
-		User:     conn.user,
-		Message:  msg,
-		Type:     msgType,
+		User:      conn.user,
+		Message:   msg,
+		Type:      msgType,
 		ProductId: conn.conn.Params("id"),
-		DateSent: time.Now().Local().String(),
+		CreatedAt: time.Now().Local().String(),
 	}
 }
 
 func HandleDisconnect(conn *socketConnection) {
-  var updatedUsers []*socketConnection 
-  for _, user := range users[conn.conn.Params("id")]{
-        if user.conn != conn.conn {
-             updatedUsers = append(updatedUsers, user) 
-    }
-  }
-  users[conn.conn.Params("id")] = updatedUsers 
+	var updatedUsers []*socketConnection
+	for _, user := range users[conn.conn.Params("id")] {
+		if user.conn != conn.conn {
+			updatedUsers = append(updatedUsers, user)
+		}
+	}
+	users[conn.conn.Params("id")] = updatedUsers
 	_, exists := UserAccs[conn.conn.Params("id")][conn.conn]
 	productId := conn.conn.Params("id")
 	if exists {
-		delete(UserAccs[conn.conn.Params("id")],conn.conn)
+		delete(UserAccs[conn.conn.Params("id")], conn.conn)
 	}
 	SendUsersList(productId)
 
@@ -168,7 +169,7 @@ func SendUsersList(productId string) {
 	}
 	fmt.Println("connected users: ", len(allUsers))
 	fmt.Println("all users: ", allUsers)
-	for _,client  := range users[productId] {
+	for _, client := range users[productId] {
 		err := client.sendMessage(struct {
 			Users []MessageUser `json:"users"`
 			Type  string        `json:"type"`

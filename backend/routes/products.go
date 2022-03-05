@@ -20,20 +20,21 @@ func Products(app *fiber.App) {
 		SigningKey: []byte("secret"),
 	}))
 
-	products.Get("/comments/:field/:postId", get.GetPostComments)
+	products.Get("/post/:field/:postId/:lastID?", get.GetPostDetails)
 	products.Get("/isFollowed/:product_id", get.IsProductFollowed)
 	products.Get("messages/:productId/:afterId?", get.GetMessages)
 	products.Get("posts/:productId/:field/:afterId?", get.GetPosts)
 	products.Get("product/:product_name", get.GetProduct)
-	products.Get("/latest_posts/:field", get.LatestProductPosts)
+	products.Get("/latest_posts/:field/:lastId?", get.LatestProductPosts)
 	products.Get("/dayStats/:productId", get.ProductDayStats)
-  products.Get("board/:productId", get.GetFromPostsBoard)
+	products.Get("board/:productId", get.GetFromPostsBoard)
+	products.Get("comments/:postId/:lastId?", get.GetPostComments)
 
-  products.Put("board/:productId/:field/add/:postId", patch.AddPostToBoard)
-  products.Put("board/:productId/:field/remove/:postId", patch.RemovePostFromBoard)
+	products.Put("board/:productId/:field/add/:postId", patch.AddPostToBoard)
+	products.Put("board/:productId/:field/remove/:postId", patch.RemovePostFromBoard)
 	products.Put("like_post/:postId", patch.LikePost)
 	products.Put("dislike_post/:postId", patch.DislikePost)
-  
+
 	products.Post("/create", post.CreateProduct)
 	products.Post("verify/:name", post.VerifyProduct)
 	products.Post("/follow/:product_name", post.FollowProduct)
@@ -49,5 +50,4 @@ func Products(app *fiber.App) {
 	products.Delete("delete/post/:productId/:field/:post_id", delete.DeletePost)
 	products.Delete("delete/product/:id", delete.DeleteProduct)
 	products.Patch("update/role/:product_id/:user_id", patch.UpdateUserRole)
-
 }

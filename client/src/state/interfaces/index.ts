@@ -31,7 +31,6 @@ export interface Comment {
   CreatedAt: string;
   UpdatedAt: string;
   DeletedAt: string | null;
-//  add bug id or suggestions id
   user: User;
   userID: number;
   comment: string
@@ -51,6 +50,8 @@ export interface Post {
   likes: number;
   dislikes: number;
   comments?: Comment[];
+  images: string[]
+  type: PostTags[]
 }
 
 
@@ -61,6 +62,7 @@ export interface UserInfo {
   DeletedAt?: null;
   name: string;
   email: string;
+  password: string;
   pfp: string;
   products?: Product[] | null;
   followed_products?: Product[] | null;

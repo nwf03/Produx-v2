@@ -48,27 +48,4 @@ func FollowProduct(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Followed",
 	})
-	//db.DB.Preload("FollowedProducts").First(&User, "id = ?", userId)
-	//if User.ID == 0 {
-	//	return c.Status(401).JSON(fiber.Map{
-	//		"message": "User not found",
-	//	})
-	//}
-	//productName := strings.TrimSpace(strings.ReplaceAll(c.Params("product_name"), "%20", " "))
-	//
-	//var Product db.Product
-	//db.DB.First(&Product, "name = ?", productName)
-	//if Product.ID == 0 {
-	//	return c.Status(401).JSON(fiber.Map{
-	//		"message": "Product not found",
-	//	})
-	//}
-	//err := db.DB.Model(&User).Association("FollowedProducts").Append(&Product)
-	//if err != nil {
-	//	return err
-	//}
-	//db.DB.Save(&User)
-	//return c.Status(200).JSON(fiber.Map{
-	//	"message": "Product followed",
-	//})
 }

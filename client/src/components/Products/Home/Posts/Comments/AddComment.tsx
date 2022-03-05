@@ -1,6 +1,7 @@
 import { ChangeEvent, MouseEventHandler, useState } from "react";
 import { Loading, Button, Textarea } from "@nextui-org/react";
 import { useCreateCommentMutation } from "../../../../../state/reducers/api";
+import { useRouter } from "next/router";
 export default function AddComment({
   field,
   postId,
@@ -12,6 +13,7 @@ export default function AddComment({
   const [createComment, { data, error, isLoading }] =
     useCreateCommentMutation();
   const [shoErr, setShowErr] = useState(false);
+  const router = useRouter()
   const submitHandler = async (e: any) => {
     e.preventDefault();
     if (!comment) {
@@ -20,6 +22,7 @@ export default function AddComment({
     }
     setShowErr(false);
     await createComment({ postId, field, comment });
+    router.reload()
     setComment("");
   };
   return (

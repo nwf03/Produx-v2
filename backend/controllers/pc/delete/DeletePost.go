@@ -1,16 +1,24 @@
 package delete
 
 import (
+	"fmt"
 	"strings"
 	"tutorial/controllers/pc/mw"
 	"tutorial/db"
-  "fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 //var DB = controllers.DB
 
+func DeletePost2(c *fiber.Ctx) error {
+	names := make(map[string]int)
+	for i := range names {
+		fmt.Println(i)
+	}
+	return c.SendStatus(200)
+}
 func DeletePost(c *fiber.Ctx) error {
 	productId := c.Params("productId")
 	field := strings.TrimSpace(strings.ToLower(c.Params("field")))
@@ -28,24 +36,17 @@ func DeletePost(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var product db.Product
-  fmt.Println("producid: ", productId)
+	fmt.Println("producid: ", productId)
 	db.DB.First(&product, "id = ?", productId)
 	if product.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
 	}
 
 	var post db.DeletePost
-	switch field {
-	case "changelogs":
-		var changelog db.Changelog
-		db.DB.First(&changelog, "id = ? and user_id = ?", postId, int64(id))
-		post = &changelog
-	default:
-		var p db.Post
-    query := fmt.Sprintf(`id = %s and user_id = %d and type && '{"%s"}'`, postId, uint(id), field)
-		db.DB.First(&p, query)
-		post = &p
-	}
+	var p db.Post
+	query := fmt.Sprintf(`id = %s and user_id = %d and type && '{"%s"}'`, postId, uint(id), field)
+	db.DB.First(&p, query)
+	post = &p
 
 	if post.GetID() == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "Post not found"})

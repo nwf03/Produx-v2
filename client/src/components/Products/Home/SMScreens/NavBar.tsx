@@ -47,13 +47,13 @@ export default function NavBar({ product }: { product: Product }) {
           </svg>
         </div>
         {showMenu && (
-          <div className="w-screen z-50 h-screen fixed left-0 top-20 bg-red-400">
+          <div className="w-screen z-50 fixed left-0 top-20 bg-white">
             <div className="mx-auto mt-20">
               {Object.keys(channels).map((c) => {
                 return (
                   <div
                     key={c}
-                    className=" text-3xl p-4  hover:bg-white cursor-pointer mx-12 rounded-xl mb-20"
+                    className=" text-3xl p-4  hover:bg-gray-200 cursor-pointer mx-12 rounded-xl mb-20"
                     onClick={() => setShowMenu(false)}
                   >
                     <Link

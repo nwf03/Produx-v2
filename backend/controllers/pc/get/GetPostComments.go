@@ -1,21 +1,40 @@
 package get
 
 import (
-	"strings"
+	"strconv"
 	"tutorial/db"
-  "fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func GetPostComments(c *fiber.Ctx) error {
 	postId := c.Params("postId")
-	field := strings.ToLower(c.Params("field"))
-	var post db.Post
-	if db.ValidType(field) {
-    query := fmt.Sprintf(`id = %s and type && '{"%s"}'`, postId, field)
-    db.DB.Preload("Product").Preload("Comments").Preload("Comments.User").Preload("User").Where(query).Find(&post)
-    fmt.Println("post types: ", post.Type)
-		return c.JSON(post)
+	lastId := c.Params("lastId")
+	postIdInt, err := strconv.ParseUint(postId, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "invalid post id",
+		})
 	}
-	return c.Status(400).JSON(fiber.Map{"message": "invalid field"})
+	lastIdInt, err := strconv.ParseUint(lastId, 10, 32)
+	if err != nil {
+		lastIdInt = 0
+	}
+
+	comments, err := db.DB.GetPostComments(postIdInt, lastIdInt)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	if len(comments) > 0 {
+		return c.JSON(fiber.Map{
+			"comments": comments,
+			"hasMore":  db.DB.GetLastPostCommentID(postIdInt) != comments[len(comments)-1].ID,
+			"lastId":   comments[len(comments)-1].ID,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"comments": comments,
+		"hasMore":  false,
+		"lastId":   0,
+	})
 }

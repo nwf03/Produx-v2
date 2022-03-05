@@ -69,8 +69,9 @@ export default function Sidebar({
   // todo have a gear icon next to the product logo with a drop down menu where you can unfollow
   return (
     //  todo fix logo, name, and stat centering when screen size is md
-    <div className="bg-gray-100 h-[96vh]  justify-center flex overflow-auto">
+    <div className="bg-gray-100 h-screen  justify-center flex overflow-auto">
       <div className="mt-4">
+        <div className={"p-4 rounded-box"}>
         <div className="left-0 top-0 md:left-5 md:top-4 fixed dropdown">
           <div className="m-1 cursor-pointer">
             <div>
@@ -101,7 +102,7 @@ export default function Sidebar({
             <img
               src={product.images[0]}
               alt={product.name}
-              className="w-[9vw] min-w-[80px] md:min-w-[120px]"
+              className="w-[1vw] min-w-[80px] md:min-w-[120px]"
             />
           )}
         </div>
@@ -121,7 +122,8 @@ export default function Sidebar({
             <p>{postCount}</p>
           </div>
         </div>
-        <div className="mt-5">
+        </div>
+        <div className="rounded-box">
           <Link
             href={{
               pathname: "/products/[name]/",
@@ -199,6 +201,7 @@ export default function Sidebar({
             })}
           </div> */}
         {/* </div> */}
+
       </div>
     </div>
   );

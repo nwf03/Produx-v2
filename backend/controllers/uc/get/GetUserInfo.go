@@ -8,6 +8,7 @@ import (
 )
 
 func GetUserInfo(c *fiber.Ctx) error {
+
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)

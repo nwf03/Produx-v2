@@ -32,7 +32,6 @@ export default function Posts({
   const [posts, setPosts] = useState(data ? data.posts : []);
   console.log("posts:", data);
   const [lastId, setLastID] = useState(data ? data.lastId : 0);
-  const hasMore = data ? data.hasMore : false;
   const observer = useRef();
   const lastPostRef = useCallback(
     (node) => {

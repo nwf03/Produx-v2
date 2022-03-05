@@ -1,12 +1,15 @@
 package post
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"tutorial/controllers/pc/mw"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -30,27 +33,28 @@ func CreatePost(c *fiber.Ctx) error {
 	var userInfo db.User
 	db.DB.First(&userInfo, "id = ?", id)
 
-	//switch field {
-	//	newField = new(db.Suggestion)
-	//	newField.(*db.Suggestion).UserID = uint(id)
-	//	newField.(*db.Suggestion).ProductID = product.ID
-	//	newField = new(db.Bug)
-	//	newField.(*db.Bug).UserID = uint(id)
-	//
-	//	newField.(*db.Bug).ProductID = product.ID
-	// case "announcements":
-	//case "suggestions":
-	//case "bugs":
-	//	newField.UserID = uint(id)
-	//	newField.ProductID = product.ID
-	// case "changelogs":
-	// 	newField = new(db.Changelog)
-	// 	newField.(*db.Changelog).UserID = uint(id)
-	// 	newField.(*db.Changelog).ProductID = product.ID
-	//}
 	if err := c.BodyParser(newField); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
+  postId := uuid.NewString()
+  err := os.Mkdir("./public/"+userInfo.Name+"/"+postId, 0755) 
+  if err != nil{
+    return c.SendStatus(fiber.StatusInternalServerError)
+  }
+
+  for i := 1; i <= 3; i++ {
+    file, err := c.FormFile(fmt.Sprint("image", i)) 
+    if err != nil{
+      break
+    }
+    imageUrl := fmt.Sprintf("public/%s/%s/%s", userInfo.Name, postId,file.Filename)
+    savePath := fmt.Sprintf("./%s", imageUrl)
+    err = c.SaveFile(file, savePath)
+    if err != nil{
+      c.SendStatus(fiber.StatusInternalServerError)
+    }
+    newField.Images = append(newField.Images, url+ imageUrl)
+  }
 
 	newField.UserID = uint(id)
 	newField.ProductID = product.ID

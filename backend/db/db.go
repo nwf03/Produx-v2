@@ -27,10 +27,7 @@ func GetDB() *gorm.DB {
 	} else {
 		fmt.Println(DB)
 	}
-	// err2 := DB.AutoMigrate(&User{}, &Product{}, &Suggestion{}, &Bug{},
-	// &Changelog{}, &Announcement{}, &ProductUser{}, &BugComment{},
-	// &SuggestionComment{}, &AnnouncementComment{}, &Message{})
-	err = DB.AutoMigrate(&User{}, &Product{}, &Post{}, &Comment{}, &Changelog{}, &ProductUser{}, &Message{})
+	err = DB.AutoMigrate(&User{}, &Product{}, &Post{}, &Comment{}, &ProductUser{}, &Message{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,53 +66,6 @@ func (db *DBConn) GetPosts(field string, productId int64, lastId int64, preloadU
 	return posts, err
 }
 
-//func (db *DBConn) GetAnnouncements(productId int64, lastId int64, preloadUser bool) ([]Announcement, error) {
-//	var announcements []Announcement
-//	var err error
-//	query := createPostsQuery(lastId, productId)
-//	if preloadUser {
-//		err = db.Limit(10).Order("created_at desc").Preload("User").Find(&announcements, query).Error
-//	} else {
-//		err = db.Limit(10).Order("created_at desc").Find(&announcements, query).Error
-//	}
-//	return announcements, err
-//}
-func (db *DBConn) GetChangelogs(productId int64, lastId int64, preloadUser bool) ([]Changelog, error) {
-	var changelogs []Changelog
-	var err error
-	query := createPostsQuery(lastId, productId, "")
-	if preloadUser {
-		err = db.Limit(10).Order("created_at desc").Preload("User").Find(&changelogs, query).Error
-	} else {
-		err = db.Limit(10).Order("created_at desc").Find(&changelogs, query).Error
-	}
-	return changelogs, err
-}
-
-//func (db *DBConn) GetBugs(productId int64, lastId int64, preloadUser bool) ([]Bug, error) {
-//	var bugs []Bug
-//	var err error
-//	query := createPostsQuery(lastId, productId)
-//	fmt.Println("query: ", query)
-//	if preloadUser {
-//		err = db.Limit(10).Order("created_at desc").Preload("User").Find(&bugs, query).Error
-//	} else {
-//		err = db.Limit(10).Order("created_at desc").Find(&bugs, query).Error
-//	}
-//	return bugs, err
-//}
-//func (db *DBConn) GetSuggestions(productId int64, lastId int64, preloadUser bool) ([]Suggestion, error) {
-//	var suggestions []Suggestion
-//	var err error
-//	query := createPostsQuery(lastId, productId)
-//	if preloadUser {
-//		err = db.Limit(10).Order("created_at desc").Preload("User").Find(&suggestions, query).Error
-//	} else {
-//		err = db.Limit(10).Order("created_at desc").Find(&suggestions, query).Error
-//	}
-//	return suggestions, err
-//}
-//
 func createPostsQuery(lastId int64, productId int64, field string) string {
 	var query string
 	if field != "" {
@@ -136,18 +86,13 @@ func createPostsQuery(lastId int64, productId int64, field string) string {
 
 func (db *DBConn) GetOldestPost(productId int64, field string) Post {
 	var post Post
-	query := fmt.Sprintf("id = (SELECT MIN(id) FROM posts where product_id = %d) and product_id = %d and type = '%s' ", productId, productId, field)
+	query := fmt.Sprintf(`id = (SELECT MIN(id) FROM posts where product_id = %d) and product_id = %d and type && '{"%s"}'`, productId, productId, field)
 	db.Find(&post, query)
+	fmt.Println("oldest post: ", post)
 	return post
 }
 
-//func (db *DBConn) GetOldestBugs(productId int64) Bug {
-//	var bug Bug
-//	query := fmt.Sprintf("id = (SELECT MIN(id) FROM bugs where product_id = %d) and product_id = %d", productId, productId)
-//	db.Find(&bug, query)
-//	return bug
-//}
-func (db *DBConn) ProductFieldPostCount(productId int64, field string) (int64, error) {
+func (db *DBConn) ProductFieldPostCount(productId int64, field string, duringDay bool) (int64, error) {
 	var count int64 = 0
 	today := time.Now()
 	year, month, day := today.Date()
@@ -156,22 +101,79 @@ func (db *DBConn) ProductFieldPostCount(productId int64, field string) (int64, e
 	if !ValidType(field) {
 		return 0, errors.New("invalid field")
 	}
-	switch field {
-	case "changelog":
-		db.Model(&Changelog{}).Where("product_id = ? and created_at between ? and ?", productId, dayStart, dayEnd).Count(&count)
-	default:
+	if duringDay {
 		db.Model(&Post{}).Where("product_id = ? and created_at between ? and ? and type && ?", productId, dayStart, dayEnd, pq.StringArray{field}).Count(&count)
+		return count, nil
+	} else {
+		db.Model(&Post{}).Where("product_id = ? and type && ?", productId, pq.StringArray{field}).Count(&count)
+		return count, nil
 	}
-	return count, nil
 }
 
+func (db *DBConn) GetPostWithType(t string) ([]Post, error) {
+	if !ValidType(t) {
+		return nil, errors.New("invalid type")
+	}
 
-func (db *DBConn) GetPostWithType(t string) ([]Post, error){
-  if !ValidType(t){
-    return nil, errors.New("invalid type")
-  }
+	var posts []Post
+	db.DB.Model(&Post{}).Find(&posts, "type &&", t)
+	return posts, nil
+}
 
-  var posts []Post
-  db.DB.Model(&Post{}).Find(&posts,"type &&", t)
-  return posts, nil 
+func (db *DBConn) GetPostComments(postId, lastId uint64) ([]Comment, error) {
+	var comments []Comment
+	if lastId == 0 {
+		db.DB.Model(&Comment{}).Limit(10).Preload("User").Order("created_at desc").Find(&comments, "post_id = ?", postId)
+	} else {
+		db.DB.Model(&Comment{}).Limit(10).Preload("User").Order("created_at desc").Find(&comments, "post_id = ? and id < ?", postId, lastId)
+	}
+	return comments, nil
+}
+
+func (db *DBConn) GetLastPostCommentID(postId uint64) uint {
+	var comment Comment
+	query := fmt.Sprintf(`id = (SELECT MIN(id) FROM comments where post_id = %d) and post_id = %d`, postId, postId)
+	db.DB.Find(&comment, query)
+	return comment.ID
+}
+func (db *DBConn) GetFollowedProductsPosts(User User, field string, lastId uint64) ([]Post, error) {
+	if !ValidType(field) {
+		return nil, errors.New("invalid field")
+	}
+	var productIds []uint
+	for _, product := range User.FollowedProducts {
+		productIds = append(productIds, product.ID)
+	}
+	fmt.Println("productIds: ", productIds)
+	var posts []Post
+	if lastId == 0 {
+		db.DB.Limit(10).Preload("Product").Preload("User").Where("product_id IN (?) and  type && ?", productIds, pq.StringArray{field}, lastId).Order("created_at desc").Find(&posts)
+	} else {
+		db.DB.Limit(10).Preload("Product").Preload("User").Where("product_id IN (?) and  type && ? and id < ?", productIds, pq.StringArray{field}, lastId).Order("created_at desc").Find(&posts)
+	}
+	return posts, nil
+}
+func (db *DBConn) GetOldestFollowedProductsPost(UserFollowedProducts []Product, field string, lastId uint64) uint {
+	var productIds []uint
+	for _, product := range UserFollowedProducts {
+		productIds = append(productIds, product.ID)
+	}
+	var post Post
+	db.DB.Find(&post, "id = (SELECT MIN(id) FROM posts where product_id IN (?) and  type && ?)", productIds, pq.StringArray{field})
+	return post.ID
+}
+
+func (db *DBConn) GetChatMessages(productId, lastId uint64) []Message {
+	var msgs []Message
+	if lastId == 0 {
+		db.DB.Limit(15).Preload("User").Where("product_id = ?", productId).Order("created_at asc").Find(&msgs)
+	} else {
+		db.DB.Limit(15).Preload("User").Where("product_id = ? and id < ?", productId, lastId).Order("created_at asc").Find(&msgs)
+	}
+	return msgs
+}
+func (db *DBConn) GetLastProductMessageId(productId uint64) uint {
+	var msg Message
+	db.DB.Find(&msg, "id = (SELECT MIN(id) from messages where productId = ?)", productId)
+	return msg.ID
 }

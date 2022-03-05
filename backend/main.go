@@ -36,10 +36,6 @@ func main() {
 	routes.Users(app)
 
 	routes.Products(app)
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Home page")
-	})
 	app.Use("/ws", func(c *fiber.Ctx) error { // IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
 		if websocket.IsWebSocketUpgrade(c) {
@@ -82,5 +78,4 @@ func main() {
 	if err != nil {
 		return
 	}
-
 }

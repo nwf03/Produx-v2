@@ -11,7 +11,6 @@ import (
 
 var url = "http://localhost:8000/"
 
-
 func CreateProduct(c *fiber.Ctx) error {
 	product := new(db.Product)
 	if err := c.BodyParser(product); err != nil {
@@ -46,5 +45,11 @@ func CreateProduct(c *fiber.Ctx) error {
 	if product.ID == 0 {
 		return c.Status(500).JSON(fiber.Map{"message": "product not created"})
 	}
+	relationship := db.ProductUser{
+		UserID:    uint(userID),
+		ProductID: product.ID,
+		Role:      "Owner",
+	}
+	db.DB.Save(&relationship)
 	return c.Status(200).JSON(product)
 }

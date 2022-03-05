@@ -1,9 +1,10 @@
 package get
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"tutorial/db"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func ProductDayStats(c *fiber.Ctx) error {
@@ -14,19 +15,19 @@ func ProductDayStats(c *fiber.Ctx) error {
 			"error": "product id must be an integer",
 		})
 	}
-	bugCount, err := db.DB.ProductFieldPostCount(productIdInt, "bugs")
-	suggestionCount, err := db.DB.ProductFieldPostCount(productIdInt, "suggestions")
-	announcementCount, err := db.DB.ProductFieldPostCount(productIdInt, "announcements")
-	underReviewCount, err := db.DB.ProductFieldPostCount(productIdInt, "under-review")
-	workingOnCount, err := db.DB.ProductFieldPostCount(productIdInt, "working-on")
-	doneCount, err := db.DB.ProductFieldPostCount(productIdInt, "done")
+	bugCount, err := db.DB.ProductFieldPostCount(productIdInt, "bugs", true)
+	suggestionCount, err := db.DB.ProductFieldPostCount(productIdInt, "suggestions", true)
+	announcementCount, err := db.DB.ProductFieldPostCount(productIdInt, "announcements", true)
+	// underReviewCount, err := db.DB.ProductFieldPostCount(productIdInt, "under-review", false)
+	// workingOnCount, err := db.DB.ProductFieldPostCount(productIdInt, "working-on", false)
+	// doneCount, err := db.DB.ProductFieldPostCount(productIdInt, "done", false)
 	return c.JSON(fiber.Map{
 		"bugs":          bugCount,
 		"announcements": announcementCount,
 		"suggestions":   suggestionCount,
-		"underReview":   underReviewCount,
-		"workingOn":     workingOnCount,
-		"done":          doneCount,
+		// "Under Review":   underReviewCount,
+		// "Working on ":     workingOnCount,
+		// "Done":          doneCount,
 	})
 
 }
