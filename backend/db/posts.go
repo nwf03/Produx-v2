@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -27,8 +26,6 @@ type Post struct {
 }
 
 func ValidType(t string) bool {
-	fmt.Println("checking type t: ", t)
-	fmt.Println(len(t))
 	switch t {
 	case "suggestions", "bugs", "announcements", "done", "working-on", "under-review", "changelogs":
 		return true
@@ -70,7 +67,6 @@ func (p *Post) RemoveType(t string) error {
 			newTypes = append(newTypes, field)
 		}
 	}
-	fmt.Println("new typesss: ", newTypes)
 	p.Type = newTypes
 	DB.Save(&p)
 	return nil
@@ -192,9 +188,4 @@ func (p *Post) RemoveDislike(user User) error {
 		return err
 	}
 	return nil
-}
-
-type test struct {
-	Name     string `json:"nwf"`
-	LastName string `json:"nwf"`
 }

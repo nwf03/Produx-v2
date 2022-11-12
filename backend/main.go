@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"tutorial/controllers/pc"
 	"tutorial/routes"
@@ -36,8 +35,7 @@ func main() {
 	routes.Users(app)
 
 	routes.Products(app)
-	app.Use("/ws", func(c *fiber.Ctx) error { // IsWebSocketUpgrade returns true if the client
-		// requested upgrade to the WebSocket protocol.
+	app.Use("/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
 			c.Locals("allowed", true)
 			return c.Next()
@@ -50,13 +48,11 @@ func main() {
 			err error
 		)
 		for {
-
 			if _, msg, err = c.ReadMessage(); err != nil {
 				pc.HandleDisconnect(pc.UserAccs[c.Params("id")][c])
 				break
 			}
 			pc.WSMsgHandler(c, string(msg))
-
 		}
 	}))
 	subscriber = redisClient.Subscribe(ctx, "messages")
@@ -73,9 +69,9 @@ func main() {
 			pc.SendMessage(message)
 		}
 	}()
-	fmt.Println("subscriber not nil")
 	err = app.Listen(":8000")
+
 	if err != nil {
-		return
+		panic(err)
 	}
 }

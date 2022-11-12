@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -56,7 +54,6 @@ func (user *User) Update(name, email, password, pfp string) error {
 		user.Password = password
 	}
 	if email != "" {
-		fmt.Println("updating email:", email)
 		user.Email = email
 	}
 	if password != "" {
