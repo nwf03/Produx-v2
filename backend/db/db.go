@@ -24,8 +24,6 @@ func GetDB() *gorm.DB {
 
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		fmt.Println(DB)
 	}
 	err = DB.AutoMigrate(&User{}, &Product{}, &Post{}, &Comment{}, &ProductUser{}, &Message{})
 	if err != nil {
@@ -88,7 +86,6 @@ func (db *DBConn) GetOldestPost(productId int64, field string) Post {
 	var post Post
 	query := fmt.Sprintf(`id = (SELECT MIN(id) FROM posts where product_id = %d) and product_id = %d and type && '{"%s"}'`, productId, productId, field)
 	db.Find(&post, query)
-	fmt.Println("oldest post: ", post)
 	return post
 }
 
@@ -144,7 +141,6 @@ func (db *DBConn) GetFollowedProductsPosts(User User, field string, lastId uint6
 	for _, product := range User.FollowedProducts {
 		productIds = append(productIds, product.ID)
 	}
-	fmt.Println("productIds: ", productIds)
 	var posts []Post
 	if lastId == 0 {
 		db.DB.Limit(10).Preload("Product").Preload("User").Where("product_id IN (?) and  type && ?", productIds, pq.StringArray{field}, lastId).Order("created_at desc").Find(&posts)
@@ -166,14 +162,14 @@ func (db *DBConn) GetOldestFollowedProductsPost(UserFollowedProducts []Product, 
 func (db *DBConn) GetChatMessages(productId, lastId uint64) []Message {
 	var msgs []Message
 	if lastId == 0 {
-		db.DB.Limit(15).Preload("User").Where("product_id = ?", productId).Order("created_at asc").Find(&msgs)
+		db.DB.Limit(15).Preload("User").Where("product_id = ?", productId).Order("created_at desc").Find(&msgs)
 	} else {
-		db.DB.Limit(15).Preload("User").Where("product_id = ? and id < ?", productId, lastId).Order("created_at asc").Find(&msgs)
+		db.DB.Limit(15).Preload("User").Where("product_id = ? and id < ?", productId, lastId).Order("created_at desc").Find(&msgs)
 	}
 	return msgs
 }
 func (db *DBConn) GetLastProductMessageId(productId uint64) uint {
 	var msg Message
-	db.DB.Find(&msg, "id = (SELECT MIN(id) from messages where productId = ?)", productId)
+	db.DB.Find(&msg, "id = (SELECT MIN(id) from messages where product_id = ?)", productId)
 	return msg.ID
 }
