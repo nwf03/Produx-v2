@@ -1,7 +1,6 @@
 package get
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"tutorial/db"
@@ -26,7 +25,6 @@ func GetPosts(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "invalid post type"})
 	}
 	posts, err := db.DB.GetPosts(field, productIdInt, afterIdInt, true)
-	fmt.Println("error while getting posts: ", err)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "error"})
 	}

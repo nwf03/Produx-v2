@@ -8,7 +8,6 @@ import (
 )
 
 func ProductDayStats(c *fiber.Ctx) error {
-	//convert string to uint
 	productIdInt, err := strconv.ParseInt(c.Params("productId"), 10, 32)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -18,16 +17,16 @@ func ProductDayStats(c *fiber.Ctx) error {
 	bugCount, err := db.DB.ProductFieldPostCount(productIdInt, "bugs", true)
 	suggestionCount, err := db.DB.ProductFieldPostCount(productIdInt, "suggestions", true)
 	announcementCount, err := db.DB.ProductFieldPostCount(productIdInt, "announcements", true)
-	// underReviewCount, err := db.DB.ProductFieldPostCount(productIdInt, "under-review", false)
-	// workingOnCount, err := db.DB.ProductFieldPostCount(productIdInt, "working-on", false)
-	// doneCount, err := db.DB.ProductFieldPostCount(productIdInt, "done", false)
+	underReviewCount, err := db.DB.ProductFieldPostCount(productIdInt, "under-review", false)
+	workingOnCount, err := db.DB.ProductFieldPostCount(productIdInt, "working-on", false)
+	doneCount, err := db.DB.ProductFieldPostCount(productIdInt, "done", false)
 	return c.JSON(fiber.Map{
 		"bugs":          bugCount,
 		"announcements": announcementCount,
 		"suggestions":   suggestionCount,
-		// "Under Review":   underReviewCount,
-		// "Working on ":     workingOnCount,
-		// "Done":          doneCount,
+		"Under Review":  underReviewCount,
+		"Working on ":   workingOnCount,
+		"Done":          doneCount,
 	})
 
 }

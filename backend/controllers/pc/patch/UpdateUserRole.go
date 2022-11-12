@@ -1,7 +1,6 @@
 package patch
 
 import (
-	"fmt"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,8 +18,6 @@ func UpdateUserRole(c *fiber.Ctx) error {
 	var userR db.ProductUser
 	var Product db.Product
 	db.DB.First(&Product, c.Params("product_id"))
-	fmt.Println("userId", userId)
-	fmt.Println("productId", Product.UserID)
 	if uint(userId) != Product.UserID {
 		return c.Status(401).JSON(fiber.Map{
 			"message": "You are not authorized to update this product",

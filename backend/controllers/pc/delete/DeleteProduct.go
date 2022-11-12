@@ -1,7 +1,6 @@
 package delete
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"tutorial/db"
@@ -14,7 +13,6 @@ func DeleteProduct(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	userID := claims["id"].(float64)
 	var product db.Product
-	fmt.Println("user id: ", userID, productID)
 	err := db.DB.Where("id = ? and user_id = ?", productID, userID).First(&product).Error
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Product not found"})

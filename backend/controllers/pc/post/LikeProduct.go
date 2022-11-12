@@ -1,14 +1,13 @@
 package post
 
 import (
-	"fmt"
 	"tutorial/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func LikeProduct(c *fiber.Ctx) error{
+func LikeProduct(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
@@ -16,15 +15,14 @@ func LikeProduct(c *fiber.Ctx) error{
 	db.DB.Preload("LikedProducts").Where("name = ?", name).First(&User)
 	var Product db.Product
 	db.DB.Preload("UserLikes").Where("id = ?", c.FormValue("id")).First(&Product)
-	fmt.Println("Product name: ", Product.Name)
-	if Product.ID == 0{
+	if Product.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{
 			"message": "Product not found",
 		})
 	}
 
-	for _, user := range Product.UserLikes{
-		if user.Name == name{
+	for _, user := range Product.UserLikes {
+		if user.Name == name {
 			return c.Status(400).JSON(fiber.Map{
 				"message": "You already liked this product",
 			})
@@ -34,14 +32,12 @@ func LikeProduct(c *fiber.Ctx) error{
 	if err != nil {
 		return err
 	}
-	fmt.Println("Product Likes: ", Product.UserLikes)
 
 	Product.LikesCount = Product.LikesCount + 1
-	fmt.Println("PRODUCT LIKES: ", Product.LikesCount)
 
 	db.DB.Save(&Product)
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Product liked",
 	})
-	
+
 }

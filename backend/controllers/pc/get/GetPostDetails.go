@@ -15,7 +15,6 @@ func GetPostDetails(c *fiber.Ctx) error {
 	if db.ValidType(field) {
 		query := fmt.Sprintf(`id = %s and type && '{"%s"}'`, postId, field)
 		db.DB.Order("created_at desc").Preload("Product").Preload("User").Where(query).Find(&post)
-		fmt.Println("post types: ", post.Type)
 		return c.JSON(post)
 	}
 	return c.Status(400).JSON(fiber.Map{"message": "invalid field"})

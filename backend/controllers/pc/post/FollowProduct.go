@@ -1,7 +1,6 @@
 package post
 
 import (
-	"fmt"
 	"strings"
 	"tutorial/db"
 
@@ -36,8 +35,6 @@ func FollowProduct(c *fiber.Ctx) error {
 		return c.Status(503).JSON(fiber.Map{"status": "error", "message": "provide access token"})
 	}
 	if req.AccessToken != Product.AccessToken {
-		fmt.Println(req.AccessToken)
-		fmt.Println(Product.AccessToken)
 		return c.Status(503).JSON(fiber.Map{"message": "AccessToken is not correct"})
 	}
 

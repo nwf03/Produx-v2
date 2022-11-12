@@ -19,10 +19,14 @@ func GetMessages(c *fiber.Ctx) error {
 		lastIdInt = 0
 	}
 	messages := db.DB.GetChatMessages(productIdInt, lastIdInt)
-	lastMsgId := messages[len(messages)-1].ID
+	var lastMsgId uint
+	if len(messages) > 0 {
+		lastMsgId = messages[len(messages)-1].ID
+	}
+	oldestId := db.DB.GetLastProductMessageId(productIdInt)
 	return c.JSON(fiber.Map{
 		"messages": messages,
 		"lastId":   lastMsgId,
-		"hasMore":  db.DB.GetLastPostCommentID(productIdInt) != lastMsgId,
+		"hasMore":  oldestId != lastMsgId,
 	})
 }

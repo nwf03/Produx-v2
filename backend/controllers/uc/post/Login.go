@@ -25,9 +25,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println("username: " + userInfo.Username)
 	user := db.User{}
-	// todo hash user passwords
 	db.DB.First(&user, "name = ?", userInfo.Username)
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userInfo.Password)); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "email or password incorrect")

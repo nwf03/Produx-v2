@@ -10,15 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-//var DB = controllers.DB
-
-func DeletePost2(c *fiber.Ctx) error {
-	names := make(map[string]int)
-	for i := range names {
-		fmt.Println(i)
-	}
-	return c.SendStatus(200)
-}
 func DeletePost(c *fiber.Ctx) error {
 	productId := c.Params("productId")
 	field := strings.TrimSpace(strings.ToLower(c.Params("field")))
@@ -36,7 +27,6 @@ func DeletePost(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	id := claims["id"].(float64)
 	var product db.Product
-	fmt.Println("producid: ", productId)
 	db.DB.First(&product, "id = ?", productId)
 	if product.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{"message": "Product not found"})

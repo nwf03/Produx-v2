@@ -20,16 +20,16 @@ import (
 )
 
 type MessageUser struct {
-	UserId   uint   `json:"userId"`
-	UserName string `json:"username"`
-	Pfp      string `json:"pfp"`
+	Id   uint   `json:"id"`
+	Name string `json:"name"`
+	Pfp  string `json:"pfp"`
 }
 type Message struct {
 	User      MessageUser `json:"user"`
 	Message   string      `json:"message"`
 	Type      messageType `json:"type"`
 	ProductId string      `json:"productId"`
-	CreatedAt string      `json:"CreatedAt"`
+	CreatedAt time.Time   `json:"CreatedAt"`
 }
 type socketConnection struct {
 	conn *websocket.Conn
@@ -40,7 +40,6 @@ type socketConnection struct {
 func (c *socketConnection) sendMessage(msg interface{}) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	fmt.Println("sendin message.....")
 	return c.conn.WriteJSON(msg)
 }
 func (msg *Message) UnmarshalBinary(data []byte) error {
@@ -83,16 +82,13 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 	userId := claims["id"].(float64)
 	err = db.DB.Select("ID, Name, Pfp").Where("id = ?", userId).First(&UserInfo).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		fmt.Println("user not found")
-	} else {
-		fmt.Println(UserInfo.ID)
-		fmt.Println(UserInfo.Name)
-		fmt.Println(UserInfo.Pfp)
+		ws.Close()
+		return
 	}
 	user := MessageUser{
-		UserId:   UserInfo.ID,
-		UserName: UserInfo.Name,
-		Pfp:      UserInfo.Pfp,
+		Id:   UserInfo.ID,
+		Name: UserInfo.Name,
+		Pfp:  UserInfo.Pfp,
 	}
 	var connection = &socketConnection{
 		conn: ws,
@@ -118,10 +114,10 @@ func publishMessage(conn *socketConnection, msg string) {
 		}
 		dbMsg := db.Message{
 			ProductId: uint(productId),
-			UserID:    conn.user.UserId,
+			UserID:    conn.user.Id,
 			Message:   finalMsg.Message,
 		}
-		db.DB.Create(&dbMsg)
+		err = db.DB.Create(&dbMsg).Error
 	}
 	if err := publisher.Publish(ctx, "messages", finalMsg).Err(); err != nil {
 		panic(err)
@@ -141,7 +137,7 @@ func makeMessage(conn *socketConnection, msgType messageType, msg string) *Messa
 		Message:   msg,
 		Type:      msgType,
 		ProductId: conn.conn.Params("id"),
-		CreatedAt: time.Now().Local().String(),
+		CreatedAt: time.Now(),
 	}
 }
 
@@ -167,8 +163,6 @@ func SendUsersList(productId string) {
 	for _, conn := range UserAccs[productId] {
 		allUsers = append(allUsers, conn.user)
 	}
-	fmt.Println("connected users: ", len(allUsers))
-	fmt.Println("all users: ", allUsers)
 	for _, client := range users[productId] {
 		err := client.sendMessage(struct {
 			Users []MessageUser `json:"users"`

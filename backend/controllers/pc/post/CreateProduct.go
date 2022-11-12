@@ -2,6 +2,7 @@ package post
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"tutorial/db"
 
@@ -25,22 +26,25 @@ func CreateProduct(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	userID := claims["id"].(float64)
-	var UserInfo db.User
-	db.DB.First(&UserInfo, "id = ?", userID)
+	var userInfo db.User
+	db.DB.First(&userInfo, "id = ?", userID)
 	for i := 1; i < 6; i++ {
 		file, err := c.FormFile(fmt.Sprint("image", i))
 		if err != nil {
 			break
+		} else if i == 1 {
+			os.Mkdir("./public/"+userInfo.Name+"/"+product.Name, 0755)
 		}
-		err = c.SaveFile(file, fmt.Sprintf("./public/%s/%s", UserInfo.Name, file.Filename))
+		imgUrl := fmt.Sprintf("./public/%s/%s/%s", userInfo.Name, product.Name, file.Filename)
+
+		err = c.SaveFile(file, imgUrl)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 		}
-		product.Images = append(product.Images, fmt.Sprint(url+"public/"+UserInfo.Name+"/"+file.Filename))
+		product.Images = append(product.Images, url+imgUrl[2:])
 	}
 	product.UserID = uint(userID)
 
-	fmt.Println("userID: ", userID)
 	db.DB.Create(&product)
 	if product.ID == 0 {
 		return c.Status(500).JSON(fiber.Map{"message": "product not created"})

@@ -56,7 +56,6 @@ func GetProducts(c *fiber.Ctx) error {
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Println("user i: ", Pu.Name, Pu.Role)
 				Users = append(Users, Pu)
 			}
 			return c.JSON(fiber.Map{

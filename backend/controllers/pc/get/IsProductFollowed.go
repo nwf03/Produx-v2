@@ -14,7 +14,6 @@ func IsProductFollowed(c *fiber.Ctx) error {
 	userID := claims["id"].(float64)
 	var User db.ProductUser
 	productId := c.Params("product_id")
-	//convert product id to uint64
 	var Product db.Product
 	if err := db.DB.Select("user_id").Where("id = ?", productId).First(&Product).Error; err != nil {
 		return c.Status(500).JSON(err)

@@ -1,7 +1,6 @@
 package patch
 
 import (
-	"fmt"
 	"strings"
 	"tutorial/db"
 
@@ -40,7 +39,6 @@ func AddPostToBoard(c *fiber.Ctx) error {
 	db.DB.First(&post, postId)
 
 	if yes, t := hasSecondaryTypes(post.Type); yes {
-		fmt.Println("removing 2nd TYPEeeeeeeeeeee")
 		post.RemoveType(t)
 	}
 	post.AddType(field)
