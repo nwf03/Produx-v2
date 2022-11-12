@@ -42,7 +42,6 @@ func Products(app *fiber.App) {
 	products.Post("create/comment/", post.CreateComment)
 	products.Post("like/", post.LikeProduct)
 	products.Post("dislike/", post.DislikeProduct)
-
 	products.Patch("/update/:name", patch.UpdateProduct)
 	products.Post("create/post/:name/:field", post.CreatePost)
 	products.Patch("update/post/:name/:field/:post_id", patch.UpdatePost)
