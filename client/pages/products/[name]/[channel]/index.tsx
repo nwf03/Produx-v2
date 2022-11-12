@@ -89,7 +89,7 @@ export default function Channel({
                 <AddPost
                     show={showAdd}
                     setShow={setShowAdd}
-                    productName={name}
+                    productName={name as string}
                 />
             )}
             <br />
@@ -119,7 +119,7 @@ export default function Channel({
                         })}
                     </div>
                 ) : (
-                    <h1 className={'text-2xl w-screen text-left ml-12'}>
+                    <h1 className={'text-2xl w-screen text-left ml-8'}>
                         Channel is empty :(
                     </h1>
                 )}

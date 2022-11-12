@@ -1,29 +1,27 @@
 import {
-  Row,
-  Checkbox,
-  Modal,
   Button,
-  Input,
-  Text,
-  FormElement,
+  Checkbox,
   CheckboxEvent,
+  FormElement,
+  Input,
+  Modal,
+  Text,
 } from "@nextui-org/react";
 import {
   ChangeEvent,
   MutableRefObject,
+  useEffect,
   useRef,
   useState,
-  useEffect,
 } from "react";
-import { Product, Channels, NewProduct } from "../../../state/interfaces";
+import { NewProduct } from "../../../state/interfaces";
 import ProductImages from "./ProductImages";
-import { useAppSelector, useAppDispatch } from "../../../state/hooks";
+import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import {
   resetProductData,
+  setProductData,
   setShowStep1,
   setShowStep2,
-  setProductChannels,
-  setProductData,
 } from "../../../state/reducers/createProductSlice";
 
 export default function BasicInfo() {
@@ -52,7 +50,6 @@ export default function BasicInfo() {
     setProduct(newProductData);
   };
   const handleProductImage = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.id);
     if (e.target.files) {
       let preview = URL.createObjectURL(e.target.files[0]);
       const newProductData = {
@@ -68,9 +65,6 @@ export default function BasicInfo() {
     newProductData.private = e.target.checked;
     setProduct(newProductData);
   };
-  useEffect(() => {
-    console.log(product);
-  }, [product]);
   return (
     <div>
       <ProductImages product={product} />
@@ -96,14 +90,14 @@ export default function BasicInfo() {
               !product.images && "bg-gray-300"
             } w-full rounded-box`}
           >
-            {product.images ? (
-              <img
-                className={"h-32 object-contain w-full"}
-                src={URL.createObjectURL(product.images[0])}
-              />
-            ) : (
-              <p>Add Image</p>
-            )}
+            {product.images
+              ? (
+                <img
+                  className={"h-32 object-contain w-full"}
+                  src={URL.createObjectURL(product.images[0])}
+                />
+              )
+              : <p>Add Image</p>}
           </div>
           <input
             id={"icon"}
@@ -136,7 +130,9 @@ export default function BasicInfo() {
             placeholder="Product Description"
           />
 
-          <div className={"flex items-center justify-center text-center"}>
+          <div
+            className={"flex items-center justify-center text-center"}
+          >
             <Checkbox
               onChange={(e) => handlePrivateChange(e)}
               id="private"
@@ -156,7 +152,12 @@ export default function BasicInfo() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button auto flat color="error" onClick={() => closeHandler(true)}>
+          <Button
+            auto
+            flat
+            color="error"
+            onClick={() => closeHandler(true)}
+          >
             Cancel
           </Button>
           <Button auto onClick={() => closeHandler(false)}>
@@ -164,7 +165,9 @@ export default function BasicInfo() {
           </Button>
         </Modal.Footer>
         {showErrMsg && (
-          <p className={"mb-4 text-red-500"}>Please fill all the fields</p>
+          <p className={"mb-4 text-red-500"}>
+            Please fill all the fields
+          </p>
         )}
       </Modal>
     </div>

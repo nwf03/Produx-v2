@@ -49,7 +49,7 @@ export default function Board({
                           )
                       })
                     : !dropInfo.isOver && (
-                          <p className={' my-4 text-left ml-6 text-white'}>
+                          <p className={'my-4 text-left ml-6 text-white'}>
                               No tasks
                           </p>
                       )}

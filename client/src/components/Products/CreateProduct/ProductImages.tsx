@@ -1,27 +1,11 @@
+import { Button, Loading, Modal, Text } from "@nextui-org/react";
+import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import {
-  Row,
-  Checkbox,
-  Loading,
-  Modal,
-  Button,
-  Input,
-  Text,
-  FormElement,
-  CheckboxEvent,
-} from "@nextui-org/react";
-import { useAppSelector, useAppDispatch } from "../../../state/hooks";
-import {
-  setShowStep2,
-  setShowStep1,
   setProductData,
+  setShowStep1,
+  setShowStep2,
 } from "../../../state/reducers/createProductSlice";
-import {
-  ChangeEvent,
-  MutableRefObject,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
+import { ChangeEvent, MutableRefObject, useRef, useState } from "react";
 import { NewProduct } from "../../../state/interfaces";
 import { useCreateProductMutation } from "../../../state/reducers/api";
 import confetti from "canvas-confetti";
@@ -53,7 +37,6 @@ export default function ProductImages({ product }: { product: NewProduct }) {
     const productImages = [...productIcon, ...images];
     dispatch(setProductData({ ...product, images: productImages }));
     setSubmit(true);
-    console.log(product);
     const formData = new FormData();
     formData.set("name", product.name);
     formData.set("description", product.description);
@@ -73,7 +56,7 @@ export default function ProductImages({ product }: { product: NewProduct }) {
           spread: 170,
           origin: { x: 0.5, y: 0.9 },
         }),
-      500
+      500,
     );
     confetti.reset();
   };
@@ -99,21 +82,20 @@ export default function ProductImages({ product }: { product: NewProduct }) {
         <Modal.Body>
           <div
             onClick={() => fileRef.current.click()}
-            className={
-              "h-14 p-4 rounded-box bg-red-400 text-white flex justify-center items-center"
-            }
+            className={"h-14 p-4 rounded-box bg-red-400 text-white flex justify-center items-center"}
           >
             Select images
           </div>
           {images &&
             images.map((i, idx) => (
-              <div key={idx} className={"flex justify-center w-full"}>
+              <div
+                key={idx}
+                className={"flex justify-center w-full"}
+              >
                 {" "}
                 <img
                   src={URL.createObjectURL(i)}
-                  className={
-                    "max-w-[89%] max-h-[80vh] object-contain rounded-box"
-                  }
+                  className={"max-w-[89%] max-h-[80vh] object-contain rounded-box"}
                 />
               </div>
             ))}
@@ -142,10 +124,16 @@ export default function ProductImages({ product }: { product: NewProduct }) {
             Cancel
           </Button>
           <Button auto clickable={!isLoading} onClick={handleCreate}>
-            {isLoading ? <Loading color="white" size="sm" /> : "CreateProduct!"}
+            {isLoading ? <Loading color="white" size="sm" /> : (
+              "CreateProduct!"
+            )}
           </Button>
         </Modal.Footer>
-        {error && <p className={"text-red-400 mb-3"}>{error.data ? error.data.message : "error"}</p>}
+        {error && (
+          <p className={"text-red-400 mb-3"}>
+            {error.data ? error.data.message : "error"}
+          </p>
+        )}
       </Modal>
     </div>
   );

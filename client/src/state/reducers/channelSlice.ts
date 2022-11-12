@@ -1,23 +1,23 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PostTypes } from "../interfaces";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PostTypes } from '../interfaces'
 
 interface ChannelInterface {
-  channel: string;
+    channel: string
 }
-const initialState = {
-  channel: "Bugs",
-};
+const initialState: ChannelInterface = {
+    channel: 'Bugs',
+}
 
 const channelSlice = createSlice({
-  name: "channel",
-  initialState,
-  reducers: {
-    setChannel: (state, action: PayloadAction<string>) => {
-      state.channel = action.payload;
+    name: 'channel',
+    initialState,
+    reducers: {
+        setChannel: (state, action: PayloadAction<string>) => {
+            state.channel = action.payload
+        },
     },
-  },
-});
+})
 
-export const { setChannel } = channelSlice.actions;
+export const { setChannel } = channelSlice.actions
 
-export default channelSlice.reducer;
+export default channelSlice.reducer

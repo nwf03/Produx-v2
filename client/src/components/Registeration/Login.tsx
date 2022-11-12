@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Button } from "@nextui-org/react";
 import { useSignInMutation } from "../../state/reducers/api";
-import { User } from "../../state/interfaces";
 import { useAppDispatch } from "../../state/hooks";
 import { changeAuthStatus } from "../../state/reducers/auth";
-import {useRouter} from "next/router";
 export default function Login() {
   const [signIn] = useSignInMutation();
   const dispatch = useAppDispatch();
@@ -21,7 +19,7 @@ export default function Login() {
       .then((res: any) => {
         localStorage.setItem("token", res.data.token);
         dispatch(changeAuthStatus(true));
-        window.location.reload()
+        window.location.reload();
       })
       .catch((err) => {
         console.log(err);

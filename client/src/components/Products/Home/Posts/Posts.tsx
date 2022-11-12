@@ -1,9 +1,5 @@
-import {
-  useGetPostsQuery,
-  useLazyGetPostsQuery,
-} from "../../../../state/reducers/api";
-import { useCallback, useRef, useEffect, useState } from "react";
-import { ProductPostsResponse } from "../../../../state/interfaces";
+import { useGetPostsQuery } from "../../../../state/reducers/api";
+import { useCallback, useRef, useState } from "react";
 import Post from "./Post";
 import { Button } from "@nextui-org/react";
 import { Channel } from "../../../../state/interfaces";
@@ -28,10 +24,7 @@ export default function Posts({
     Suggestions: { icon: "🙏", color: "#0094FF" },
     Changelogs: { icon: "🔑", color: "#FF4D00" },
   };
-  // const [getPosts]
   const [posts, setPosts] = useState(data ? data.posts : []);
-  console.log("posts:", data);
-  const [lastId, setLastID] = useState(data ? data.lastId : 0);
   const observer = useRef();
   const lastPostRef = useCallback(
     (node) => {
@@ -39,12 +32,12 @@ export default function Posts({
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          console.log("load more");
+          // TODO: load more posts
         }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading]
+    [isLoading],
   );
 
   return (
@@ -68,31 +61,33 @@ export default function Posts({
       <br />
       {isLoading && "Loading..."}
       <div className="flex items-center justify-center">
-        {data && posts.length > 0 ? (
-          <div className="w-screen">
-            {posts.map((post, idx) => {
-              return (
-                <div
-                  key={idx}
-                  ref={idx == posts.length - 1 ? lastPostRef : null}
-                >
-                  {idx == posts.length - 1 && "LAST ONE"}
-                  <Post
-                    showProductIcon={false}
-                    data={post}
-                    channel={channel}
-                    color={channels[channel].color}
-                    showDivider={true}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <h1 className={"text-2xl w-screen text-left ml-12"}>
-            Channel is empty :(
-          </h1>
-        )}
+        {data && posts.length > 0
+          ? (
+            <div className="w-screen">
+              {posts.map((post, idx) => {
+                return (
+                  <div
+                    key={idx}
+                    ref={idx == posts.length - 1 ? lastPostRef : null}
+                  >
+                    {idx == posts.length - 1 && "LAST ONE"}
+                    <Post
+                      showProductIcon={false}
+                      data={post}
+                      channel={channel}
+                      color={channels[channel].color}
+                      showDivider={true}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )
+          : (
+            <h1 className={"text-2xl w-screen text-left ml-12"}>
+              Channel is empty :(
+            </h1>
+          )}
       </div>
     </div>
   );

@@ -1,18 +1,9 @@
 import { useRouter } from "next/router";
 import {
-  useLazyGetProductsQuery,
   useLazyCheckIfProductFollowedQuery,
-  useLazyGetPostDetailsQuery,
+  useLazyGetProductsQuery,
 } from "../../../../src/state/reducers/api";
-import { Post, Product, ProductUser } from "../../../../src/state/interfaces";
-import Sidebar from "../../../../src/components/Products/Home/Sidebar";
-import { useState, useEffect } from "react";
-import SmallNavBar from "../../../../src/components/Products/Home/SMScreens/NavBar";
-import { useAppSelector } from "../../../../src/state/hooks";
-import ChannelFilters from "../../../../src/components/Products/Home/SMScreens/ChannelFilters";
-import ProductUsers from "../../../../src/components/Products/Home/ProductUsers";
-import Head from "next/head";
-import AccessPrivateProduct from "../../../../src/components/Products/AccessPrivateProduct";
+import { useEffect, useState } from "react";
 import PostDetails from "../../../../src/components/Products/Home/Posts/PostDetails";
 import HomeLayout from "../../../../src/components/Products/Home/HomeLayout";
 import LoadingSpinner from "../../../../src/components/LoadingSpinner";
@@ -34,9 +25,7 @@ export default function PostView() {
   const [showPrivate, setShowPrivate] = useState(false);
   useEffect(() => {
     if (data && data.product.private) {
-      console.log("product id: ", JSON.stringify(data));
       checkIfFollowed(data.product.ID).then((res) => {
-        console.log(res);
         if (res.data.followed) {
           setShowPrivate(false);
         } else {
@@ -52,7 +41,7 @@ export default function PostView() {
           {showPost && <PostDetails />}
         </div>
       )}
-      {isLoading && <LoadingSpinner/>}
+      {isLoading && <LoadingSpinner />}
     </div>
   );
 }
