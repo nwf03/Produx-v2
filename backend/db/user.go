@@ -36,6 +36,7 @@ func (user *User) RemoveLike(post *Post) {
 	}
 	DB.Save(&user)
 }
+
 func (user *User) RemoveDislike(post *Post) {
 	err := DB.Model(user).Association("DislikedPosts").Delete(post)
 	if err != nil {
@@ -43,11 +44,13 @@ func (user *User) RemoveDislike(post *Post) {
 	}
 	DB.Save(&user)
 }
+
 func (user *User) DislikePost(post *Post) {
 	user.RemoveLike(post)
 	user.DislikedPosts = append(user.DislikedPosts, *post)
 	DB.Save(&user)
 }
+
 func (user *User) Update(name, email, password, pfp string) error {
 	if name != "" {
 		user.Name = name

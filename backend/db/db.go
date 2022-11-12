@@ -136,6 +136,7 @@ func (db *DBConn) GetLastPostCommentID(postId uint64) uint {
 	db.DB.Find(&comment, query)
 	return comment.ID
 }
+
 func (db *DBConn) GetFollowedProductsPosts(User User, field string, lastId uint64) ([]Post, error) {
 	if !ValidType(field) {
 		return nil, errors.New("invalid field")
@@ -153,6 +154,7 @@ func (db *DBConn) GetFollowedProductsPosts(User User, field string, lastId uint6
 	}
 	return posts, nil
 }
+
 func (db *DBConn) GetOldestFollowedProductsPost(UserFollowedProducts []Product, field string, lastId uint64) uint {
 	var productIds []uint
 	for _, product := range UserFollowedProducts {
@@ -172,6 +174,7 @@ func (db *DBConn) GetChatMessages(productId, lastId uint64) []Message {
 	}
 	return msgs
 }
+
 func (db *DBConn) GetLastProductMessageId(productId uint64) uint {
 	var msg Message
 	db.DB.Find(&msg, "id = (SELECT MIN(id) from messages where productId = ?)", productId)

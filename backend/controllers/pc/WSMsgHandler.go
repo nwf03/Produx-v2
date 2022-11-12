@@ -42,6 +42,7 @@ func (c *socketConnection) sendMessage(msg interface{}) error {
 	defer c.mu.Unlock()
 	return c.conn.WriteJSON(msg)
 }
+
 func (msg *Message) UnmarshalBinary(data []byte) error {
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
@@ -53,15 +54,19 @@ func (msg *Message) MarshalBinary() ([]byte, error) {
 	return json.Marshal(msg)
 }
 
-var users = make(map[string][]*socketConnection)
-var UserAccs = make(map[string]map[*websocket.Conn]*socketConnection)
+var (
+	users    = make(map[string][]*socketConnection)
+	UserAccs = make(map[string]map[*websocket.Conn]*socketConnection)
+)
 
-var ctx = context.Background()
-var publisher = redis.NewClient(&redis.Options{
-	Addr:     os.Getenv("REDIS_HOST") + ":6379", // use default Addr
-	Password: "",                                // no password set
-	DB:       0,
-})
+var (
+	ctx       = context.Background()
+	publisher = redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_HOST") + ":6379", // use default Addr
+		Password: "",                                // no password set
+		DB:       0,
+	})
+)
 
 func WSMsgHandler(ws *websocket.Conn, msg string) {
 	if conn, ok := UserAccs[ws.Params("id")][ws]; ok {
@@ -90,7 +95,7 @@ func WSMsgHandler(ws *websocket.Conn, msg string) {
 		Name: UserInfo.Name,
 		Pfp:  UserInfo.Pfp,
 	}
-	var connection = &socketConnection{
+	connection := &socketConnection{
 		conn: ws,
 		user: user,
 	}
@@ -123,6 +128,7 @@ func publishMessage(conn *socketConnection, msg string) {
 		panic(err)
 	}
 }
+
 func SendMessage(msg Message) {
 	for _, client := range users[msg.ProductId] {
 		err := client.sendMessage(msg)
@@ -131,6 +137,7 @@ func SendMessage(msg Message) {
 		}
 	}
 }
+
 func makeMessage(conn *socketConnection, msgType messageType, msg string) *Message {
 	return &Message{
 		User:      conn.user,
@@ -155,7 +162,6 @@ func HandleDisconnect(conn *socketConnection) {
 		delete(UserAccs[conn.conn.Params("id")], conn.conn)
 	}
 	SendUsersList(productId)
-
 }
 
 func SendUsersList(productId string) {

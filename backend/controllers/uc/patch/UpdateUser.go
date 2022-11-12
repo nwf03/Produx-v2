@@ -10,7 +10,6 @@ import (
 )
 
 func UpdateUser(c *fiber.Ctx) error {
-
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	userId := claims["id"].(float64)
