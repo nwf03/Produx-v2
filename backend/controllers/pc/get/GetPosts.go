@@ -34,5 +34,4 @@ func GetPosts(c *fiber.Ctx) error {
 	lastPost := db.DB.GetOldestPost(productIdInt, field)
 	return c.JSON(fiber.Map{"lastId": posts[len(posts)-1].GetID(), "posts": posts, "hasMore": lastPost.ID != posts[len(posts)-1].ID})
 	// }
-
 }

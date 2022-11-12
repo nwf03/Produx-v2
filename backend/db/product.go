@@ -36,6 +36,7 @@ func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.TSV = tsv
 	return nil
 }
+
 func (p *Product) BeforeUpdate(tx *gorm.DB) error {
 	p.Name = strings.Trim(p.Name, " ")
 	tsv, err := createTSVector(p.Name, p.Description)
@@ -45,10 +46,10 @@ func (p *Product) BeforeUpdate(tx *gorm.DB) error {
 	p.TSV = tsv
 	return nil
 }
+
 func createTSVector(name, description string) (string, error) {
 	query := fmt.Sprintf("select setweight(to_tsvector('english', '%s'), 'A') || setweight(to_tsvector('english', '%s'), 'B')", name, description)
 	rows, err := DB.Raw(query).Rows()
-
 	if err != nil {
 		return "", err
 	}

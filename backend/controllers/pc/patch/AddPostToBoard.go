@@ -17,6 +17,7 @@ func hasSecondaryTypes(types pq.StringArray) (bool, string) {
 	}
 	return false, ""
 }
+
 func AddPostToBoard(c *fiber.Ctx) error {
 	productId := c.Params("productId")
 	postId := c.Params("postId")

@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//var DB = controllers.DB
+// var DB = controllers.DB
 
 type loginInfo struct {
 	Username string `json:"username"`
