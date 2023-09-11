@@ -39,5 +39,4 @@ func LikeProduct(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"message": "Product liked",
 	})
-
 }

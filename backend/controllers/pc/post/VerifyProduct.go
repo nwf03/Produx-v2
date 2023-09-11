@@ -18,5 +18,4 @@ func VerifyProduct(c *fiber.Ctx) error {
 	Product.Verified = true
 	db.DB.Save(&Product)
 	return c.Status(200).JSON(Product)
-
 }

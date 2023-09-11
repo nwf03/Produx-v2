@@ -1,31 +1,32 @@
 package patch
 
 import (
+	"strings"
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
-  "strings"
-  "tutorial/db"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-
 func isPrimaryType(t string) bool {
-  switch t{
-case "bugs":
-case "suggestions":
-case "announcements":
-  return true 
+	switch t {
+	case "bugs":
+	case "suggestions":
+	case "announcements":
+		return true
+	}
+	return false
 }
-  return false
-} 
+
 func RemovePostFromBoard(c *fiber.Ctx) error {
 	productId := c.Params("productId")
 	postId := c.Params("postId")
 	field := strings.ToLower(c.Params("field"))
-  if !db.ValidType(field){
-    return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-      "message": "invalid type",
-    })
-  }
+	if !db.ValidType(field) {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "invalid type",
+		})
+	}
 	var product db.Product
 	var post db.Post
 	userToken := c.Locals("user").(*jwt.Token)
@@ -38,11 +39,10 @@ func RemovePostFromBoard(c *fiber.Ctx) error {
 	}
 	db.DB.First(&post, postId)
 
-  if isPrimaryType(field) {
-    return c.SendStatus(fiber.StatusBadRequest)
-  }
-  post.RemoveType(field)
+	if isPrimaryType(field) {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	post.RemoveType(field)
 
-  
 	return c.Status(200).JSON(post)
 }

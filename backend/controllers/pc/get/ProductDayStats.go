@@ -28,5 +28,4 @@ func ProductDayStats(c *fiber.Ctx) error {
 		"Working on ":   workingOnCount,
 		"Done":          doneCount,
 	})
-
 }
