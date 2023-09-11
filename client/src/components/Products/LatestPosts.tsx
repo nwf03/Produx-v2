@@ -54,8 +54,8 @@ export default function LatestPosts() {
         Changelogs: { icon: '🔑', color: '#FF4D00' },
     }
     return (
-        <div className=''>
-            <div className='block min-w-max m-5 bg-[#F5F5F5] text-center'>
+        <div className="">
+            <div className="block min-w-max m-5 bg-[#F5F5F5] text-center">
                 <div>
                     {Object.keys(channels).map((c, idx) => (
                         <span
@@ -71,7 +71,7 @@ export default function LatestPosts() {
                 </div>
             </div>
             {!data && !isLoading && (
-                <div className='text-center mt-12'>no products followed</div>
+                <div className="text-center mt-12">no products followed</div>
             )}
             {posts.length > 0 ? (
                 posts.map((p, idx) => {
@@ -92,7 +92,7 @@ export default function LatestPosts() {
                     )
                 })
             ) : (
-                <p className='text-center mt-8'>No posts here</p>
+                <p className="text-center mt-8">No posts here</p>
             )}
             {isLoading && <LoadingSpinner />}
         </div>

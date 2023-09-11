@@ -10,7 +10,6 @@ import (
 )
 
 func Users(app *fiber.App) {
-
 	users := app.Group("/users")
 
 	users.Get("/:name?", get.GetUserProducts)

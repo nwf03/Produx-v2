@@ -21,5 +21,4 @@ func RemoveLikes(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(User)
-
 }

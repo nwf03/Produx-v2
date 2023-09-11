@@ -2,10 +2,11 @@ package get
 
 import (
 	"errors"
+	"tutorial/db"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
-	"tutorial/db"
 )
 
 func IsProductFollowed(c *fiber.Ctx) error {
@@ -28,5 +29,4 @@ func IsProductFollowed(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{"followed": false})
 	}
 	return c.Status(200).JSON(fiber.Map{"followed": true})
-
 }

@@ -57,6 +57,7 @@ func (p *Post) AddType(t string) error {
 	DB.Save(&p)
 	return nil
 }
+
 func (p *Post) RemoveType(t string) error {
 	if !ValidType(t) {
 		return errors.New("invalid type")
@@ -133,6 +134,7 @@ func (p *Post) Delete() {
 func (p *Post) GetID() uint {
 	return p.ID
 }
+
 func (c *Comment) BeforeCreate(tx *gorm.DB) error {
 	var post Post
 	err := DB.First(&post, c.PostID).Error
@@ -157,6 +159,7 @@ func (p *Post) Like(user User) error {
 	}
 	return nil
 }
+
 func (p *Post) Dislike(user User) error {
 	err := p.RemoveLike(user)
 	if err != nil {
@@ -170,6 +173,7 @@ func (p *Post) Dislike(user User) error {
 	}
 	return nil
 }
+
 func (p *Post) RemoveLike(user User) error {
 	err := DB.Model(&p).Association("UserLikes").Delete(&user)
 	DB.Table("liked_posts").Where("post_id = ? AND user_id = ?", p.ID, user.ID).Count(&p.Likes)

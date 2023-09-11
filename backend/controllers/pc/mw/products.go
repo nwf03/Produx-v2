@@ -10,7 +10,6 @@ func ValidFields(field string) bool {
 		return true
 	}
 	return false
-
 }
 
 func GetPageCount(count int64) int64 {
